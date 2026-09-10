@@ -50,9 +50,14 @@ export const ExplainerBanner: React.FC = () => {
       {/* Expanded Content */}
       {isExpanded && (
         <div className="p-5 space-y-5 bg-sand-surface/60">
-          {/* Executive Purpose */}
-          <div className="text-xs text-sand-text leading-relaxed border-b border-brand-bronze/20 pb-4">
-            <b className="text-brand-ivory">Objetivo:</b> Reduzir o <b>MTTR (Mean Time to Resolution)</b> de incidentes críticos em sistemas distribuídos de horas para minutos. Quando um alerta dispara (Datadog, Prometheus, Grafana), uma <b>equipe de agentes de IA especializados</b> analisa logs, correlaciona saturações de infraestrutura e consulta runbooks operacionais padrão (SOPs) para formular uma mitigação cirúrgica.
+          {/* Executive Purpose & Datadog/Sentry Foundation */}
+          <div className="text-xs text-sand-text leading-relaxed border-b border-brand-bronze/20 pb-4 space-y-2">
+            <div>
+              <b className="text-brand-ivory">Fundação Indispensável (Datadog & Sentry):</b> O OpsMesh <b className="text-brand-gold">depende 100% da telemetria, APM e rastreamento de exceções do Datadog e Sentry</b> — plataformas consagradas que atuam como os <b>olhos e ouvidos</b> dos sistemas em produção. Sem eles, o OpsMesh não existiria.
+            </div>
+            <div>
+              <b className="text-brand-gold">Onde o OpsMesh vai além?</b> O OpsMesh assume o papel de <b>cérebro e braço prescritivo</b>: ao receber o alerta dessas ferramentas, uma equipe multi-agente de IA investiga logs e infraestrutura em paralelo, consulta os manuais de crise (SOPs) via RAG Híbrido e entrega o <b>plano de mitigação cirúrgico pronto</b>, reduzindo o MTTR de horas para minutos com <b>aprovação humana obrigatória (HITL)</b>.
+            </div>
           </div>
 
           {/* 4-Step Visual Lifecycle Pipeline */}
@@ -72,9 +77,9 @@ export const ExplainerBanner: React.FC = () => {
                     </span>
                     <ShieldAlert className="w-4 h-4 text-brand-crimson" />
                   </div>
-                  <h4 className="text-xs font-bold text-brand-ivory mb-1">Ingestão & Sanitização LGPD</h4>
+                  <h4 className="text-xs font-bold text-brand-ivory mb-1">Ingestão (Datadog/Sentry) & Sanitização</h4>
                   <p className="text-[11px] text-sand-muted leading-relaxed">
-                    O alerta é recebido via Webhook. Senhas, CPFs e cartões são <b>mascarados</b>, enquanto IPs de VPC interna (RFC 1918) são preservados para diagnóstico de rede.
+                    O alerta é gerado pelo <b>Datadog ou Sentry</b> e recebido via Webhook. Senhas, CPFs e dados sensíveis são <b>mascarados</b>, preservando IPs RFC 1918 para diagnóstico de rede.
                   </p>
                 </div>
               </div>
