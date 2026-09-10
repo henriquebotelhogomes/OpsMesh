@@ -47,7 +47,7 @@ class IncidentSupervisorAgent:
         ):
             self.api_key = api_key or settings.DEEPSEEK_API_KEY
             self.base_url = base_url or settings.DEEPSEEK_BASE_URL
-            self.model_name = model or settings.DEEPSEEK_MODEL_NAME or "deepseek-chat"
+            self.model_name = model or settings.DEEPSEEK_MODEL_NAME or "deepseek-v4.1-flash"
         elif settings.OPENAI_API_KEY:
             self.api_key = api_key or settings.OPENAI_API_KEY
             self.base_url = base_url or None
@@ -59,7 +59,7 @@ class IncidentSupervisorAgent:
         else:
             self.api_key = api_key or ""
             self.base_url = base_url or None
-            self.model_name = model or "deepseek-chat"
+            self.model_name = model or "deepseek-v4.1-flash"
 
         self._client: AsyncOpenAI | None = None
         if self.api_key:

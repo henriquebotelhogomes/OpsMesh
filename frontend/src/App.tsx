@@ -16,6 +16,7 @@ import { HITLHeroCard } from './components/HITLHeroCard';
 import { IncidentHistory } from './components/IncidentHistory';
 import { PostMortemViewer } from './components/PostMortemViewer';
 import { ChaosScenario, Incident, PostMortemReport } from './types';
+import { DEFAULT_MODEL_ID, OPENCODE_GO_MODELS } from './models';
 
 export const App: React.FC = () => {
   const [scenarios, setScenarios] = useState<ChaosScenario[]>([]);
@@ -26,7 +27,9 @@ export const App: React.FC = () => {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [postMortemReport, setPostMortemReport] = useState<PostMortemReport | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>(() => {
-    return localStorage.getItem('opsmesh_selected_model') || 'deepseek-chat';
+    const saved = localStorage.getItem('opsmesh_selected_model');
+    const isValid = saved && OPENCODE_GO_MODELS.some((m) => m.id === saved);
+    return isValid ? saved : DEFAULT_MODEL_ID;
   });
   const [incidentsHistory, setIncidentsHistory] = useState<Incident[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(false);

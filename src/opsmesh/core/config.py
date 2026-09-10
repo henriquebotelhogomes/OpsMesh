@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     OPENAI_MODEL_NAME: str = "gpt-4o-mini"
     DEEPSEEK_API_KEY: str = ""
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
-    DEEPSEEK_MODEL_NAME: str = "deepseek-chat"
+    DEEPSEEK_MODEL_NAME: str = "deepseek-v4.1-flash"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
 

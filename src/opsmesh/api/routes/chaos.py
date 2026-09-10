@@ -37,7 +37,7 @@ async def simulate_crisis(
     ),
     model: str | None = Query(
         default=None,
-        description="Modelo de LLM selecionado do OpenCode Go (ex: 'deepseek-chat', 'claude-3-7-sonnet', 'gemini-2.0-flash').",
+        description="Modelo de LLM selecionado do OpenCode Go (ex: 'deepseek-v4.1-flash', 'glm-5.3-flash', 'gpt-5.6-luna', 'muse-spark-1.3-contributor').",
     ),
     graph_app: Any = Depends(get_graph_app),
     registry: dict = Depends(get_incident_registry),

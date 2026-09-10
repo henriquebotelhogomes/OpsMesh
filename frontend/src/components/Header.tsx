@@ -19,19 +19,16 @@ export const Header: React.FC<HeaderProps> = ({
   historyCount = 0,
   onScrollToHistory,
 }) => {
-  // Providers for group headers
-  const providers = ['DeepSeek', 'Anthropic', 'OpenAI', 'Google Gemini', 'Meta & Qwen'] as const;
-
   return (
     <header className="border-b border-brand-bronze/25 bg-sand-surface/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 md:py-0 md:h-16 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 md:gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 md:py-0 md:h-16 flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
         {/* Row 1 on Mobile / Left Side on Desktop */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-sand-terminal border border-brand-gold/40 flex items-center justify-center shadow-glow-gold flex-shrink-0">
               <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center space-x-2">
                 <h1 className="text-lg sm:text-xl font-bold text-brand-ivory tracking-tight font-mono">
                   OpsMesh
@@ -40,14 +37,14 @@ export const Header: React.FC<HeaderProps> = ({
                   v1.1.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-xs text-sand-muted line-clamp-1">
+              <p className="text-[10px] sm:text-xs text-sand-muted truncate">
                 Autonomous Incident Commander Multi-Agent Platform
               </p>
             </div>
           </div>
 
           {/* Quick Action Links for Mobile (Auditoria & Docs) */}
-          <div className="flex items-center space-x-1.5 md:hidden">
+          <div className="flex items-center space-x-1.5 md:hidden flex-shrink-0 ml-2">
             {onScrollToHistory && (
               <button
                 onClick={onScrollToHistory}
@@ -70,31 +67,23 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Row 2 on Mobile / Right Side on Desktop: Model Selector & FinOps Telemetry */}
-        <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-3 w-full md:w-auto">
           {/* Dynamic OpenCode Go Model Selector */}
-          <div className="relative flex items-center flex-1 sm:flex-none">
+          <div className="relative flex items-center flex-1 sm:flex-none min-w-0 max-w-full sm:max-w-xs">
             <div className="absolute left-2.5 pointer-events-none text-brand-gold flex items-center">
               <Cpu className="w-3.5 h-3.5" />
             </div>
             <select
               value={selectedModel}
               onChange={(e) => onSelectModel(e.target.value)}
-              className="w-full sm:w-auto appearance-none bg-sand-terminal/95 hover:bg-sand-terminal text-brand-ivory text-[11px] sm:text-xs font-mono font-medium pl-7 sm:pl-8 pr-7 py-1.5 rounded-md border border-brand-gold/40 hover:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold shadow-sm cursor-pointer transition-all"
-              title="Selecione o modelo de IA do OpenCode Go"
+              className="w-full sm:w-auto appearance-none bg-sand-terminal/95 hover:bg-sand-terminal text-brand-ivory text-[11px] sm:text-xs font-mono font-medium pl-7 sm:pl-8 pr-7 py-1.5 rounded-md border border-brand-gold/40 hover:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold shadow-sm cursor-pointer transition-all truncate"
+              title="Selecione o modelo ativo do OpenCode Go"
             >
-              {providers.map((p) => {
-                const groupModels = OPENCODE_GO_MODELS.filter((m) => m.provider === p);
-                if (groupModels.length === 0) return null;
-                return (
-                  <optgroup key={p} label={`⚡ ${p} (OpenCode Go)`} className="bg-sand-terminal text-brand-gold font-bold">
-                    {groupModels.map((m) => (
-                      <option key={m.id} value={m.id} className="bg-sand-terminal text-brand-ivory font-normal">
-                        {m.name} [{m.badge}]
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              })}
+              {OPENCODE_GO_MODELS.map((m) => (
+                <option key={m.id} value={m.id} className="bg-sand-terminal text-brand-ivory font-normal">
+                  {m.name} — {m.badge}
+                </option>
+              ))}
             </select>
             <div className="absolute right-2 pointer-events-none text-sand-muted">
               <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
