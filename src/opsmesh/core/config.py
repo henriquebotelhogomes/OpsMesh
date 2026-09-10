@@ -20,12 +20,17 @@ class Settings(BaseSettings):
     WEBHOOK_SECRET: str = "opsmesh-webhook-secret-key-change-in-prod"
 
     # --- Modelos de Linguagem ---
-    DEFAULT_LLM_PROVIDER: Literal["openai", "deepseek"] = "deepseek"
+    DEFAULT_LLM_PROVIDER: Literal["openai", "deepseek", "gemini"] = "deepseek"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL_NAME: str = "gpt-4o-mini"
     DEEPSEEK_API_KEY: str = ""
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
     DEEPSEEK_MODEL_NAME: str = "deepseek-chat"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
+
+    # --- CORS Security ---
+    CORS_ORIGINS: str = "*"
 
     # --- Persistência de Checkpoints (PostgreSQL Serverless) ---
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/opsmesh"

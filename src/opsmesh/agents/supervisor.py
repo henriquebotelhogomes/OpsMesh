@@ -38,13 +38,29 @@ class IncidentSupervisorAgent:
     def __init__(
         self, api_key: str | None = None, base_url: str | None = None, model: str | None = None
     ):
-        self.api_key = api_key or settings.OPENAI_API_KEY or settings.DEEPSEEK_API_KEY
-        self.base_url = base_url or (
-            settings.DEEPSEEK_BASE_URL if settings.DEEPSEEK_API_KEY else None
-        )
-        self.model_name = model or (
-            "deepseek-chat" if settings.DEEPSEEK_API_KEY else settings.OPENAI_MODEL_NAME
-        )
+        if settings.DEFAULT_LLM_PROVIDER == "gemini" and settings.GEMINI_API_KEY:
+            self.api_key = api_key or settings.GEMINI_API_KEY
+            self.base_url = base_url or "https://generativelanguage.googleapis.com/v1beta/openai/"
+            self.model_name = model or settings.GEMINI_MODEL_NAME or "gemini-1.5-flash"
+        elif settings.DEEPSEEK_API_KEY and (
+            settings.DEFAULT_LLM_PROVIDER == "deepseek" or not settings.OPENAI_API_KEY
+        ):
+            self.api_key = api_key or settings.DEEPSEEK_API_KEY
+            self.base_url = base_url or settings.DEEPSEEK_BASE_URL
+            self.model_name = model or settings.DEEPSEEK_MODEL_NAME or "deepseek-chat"
+        elif settings.OPENAI_API_KEY:
+            self.api_key = api_key or settings.OPENAI_API_KEY
+            self.base_url = base_url or None
+            self.model_name = model or settings.OPENAI_MODEL_NAME or "gpt-4o-mini"
+        elif settings.GEMINI_API_KEY:
+            self.api_key = api_key or settings.GEMINI_API_KEY
+            self.base_url = base_url or "https://generativelanguage.googleapis.com/v1beta/openai/"
+            self.model_name = model or settings.GEMINI_MODEL_NAME or "gemini-1.5-flash"
+        else:
+            self.api_key = api_key or ""
+            self.base_url = base_url or None
+            self.model_name = model or "deepseek-chat"
+
         self._client: AsyncOpenAI | None = None
         if self.api_key:
             try:

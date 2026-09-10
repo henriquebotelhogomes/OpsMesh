@@ -1,0 +1,28 @@
+services:
+  opsmesh:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/henriquebotelhogomes/opsmesh:v1.1.0
+    container_name: opsmesh
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    environment:
+      - APP_ENV=production
+      - PORT=${PORT:-8000}
+      - DEFAULT_LLM_PROVIDER=${DEFAULT_LLM_PROVIDER:-deepseek}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - DATABASE_URL=${DATABASE_URL:-}
+      - QDRANT_LOCATION=${QDRANT_LOCATION:-:memory:}
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - FINOPS_DAILY_BUDGET_USD=${FINOPS_DAILY_BUDGET_USD:-1.00}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:' + str(__import__('os').environ.get('PORT', 8000)) + '/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
