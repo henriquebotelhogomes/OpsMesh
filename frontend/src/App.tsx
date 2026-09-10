@@ -25,9 +25,16 @@ export const App: React.FC = () => {
   const [isResuming, setIsResuming] = useState<boolean>(false);
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [postMortemReport, setPostMortemReport] = useState<PostMortemReport | null>(null);
-  const [provider, setProvider] = useState<string>('DeepSeek / OpenAI');
+  const [selectedModel, setSelectedModel] = useState<string>(() => {
+    return localStorage.getItem('opsmesh_selected_model') || 'deepseek-chat';
+  });
   const [incidentsHistory, setIncidentsHistory] = useState<Incident[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(false);
+
+  const handleSelectModel = (modelId: string) => {
+    setSelectedModel(modelId);
+    localStorage.setItem('opsmesh_selected_model', modelId);
+  };
 
   const loadHistory = async () => {
     setIsHistoryLoading(true);
@@ -44,8 +51,7 @@ export const App: React.FC = () => {
   // Load initial health, scenarios & history
   useEffect(() => {
     async function init() {
-      const health = await checkHealth();
-      setProvider(health.default_llm_provider || 'DeepSeek');
+      await checkHealth();
 
       const scList = await fetchChaosScenarios();
       setScenarios(scList);
@@ -68,7 +74,7 @@ export const App: React.FC = () => {
     setPostMortemReport(null);
     try {
       const mode = replayMode ? 'replay' : 'live';
-      const result = await simulateCrisis(selectedScenarioId, mode);
+      const result = await simulateCrisis(selectedScenarioId, mode, selectedModel);
       setActiveIncident(result);
       await loadHistory();
     } catch (err: any) {
@@ -149,7 +155,8 @@ export const App: React.FC = () => {
         <Header
           tokensConsumed={activeIncident?.total_tokens_consumed || 0}
           isBudgetExceeded={activeIncident?.is_budget_exceeded || false}
-          activeProvider={provider}
+          selectedModel={selectedModel}
+          onSelectModel={handleSelectModel}
           historyCount={incidentsHistory.length}
           onScrollToHistory={scrollToHistory}
         />

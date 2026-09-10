@@ -56,8 +56,16 @@ export async function fetchChaosScenarios(): Promise<ChaosScenario[]> {
   }
 }
 
-export async function simulateCrisis(scenarioId: string, mode: 'replay' | 'live' = 'replay'): Promise<Incident> {
-  const res = await fetch(`${API_BASE}/chaos/simulate/${scenarioId}?mode=${mode}`, {
+export async function simulateCrisis(
+  scenarioId: string,
+  mode: 'replay' | 'live' = 'replay',
+  model?: string
+): Promise<Incident> {
+  const params = new URLSearchParams({ mode });
+  if (model) {
+    params.set('model', model);
+  }
+  const res = await fetch(`${API_BASE}/chaos/simulate/${scenarioId}?${params.toString()}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });

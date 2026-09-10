@@ -35,6 +35,10 @@ async def simulate_crisis(
         default="replay",
         description="Modo de simulação: 'replay' (Zero-Token Sandbox, sem custos de API) ou 'live' (execução em tempo real).",
     ),
+    model: str | None = Query(
+        default=None,
+        description="Modelo de LLM selecionado do OpenCode Go (ex: 'deepseek-chat', 'claude-3-7-sonnet', 'gemini-2.0-flash').",
+    ),
     graph_app: Any = Depends(get_graph_app),
     registry: dict = Depends(get_incident_registry),
 ) -> IncidentResponse:

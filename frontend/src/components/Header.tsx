@@ -1,10 +1,12 @@
 import React from 'react';
-import { Shield, BookOpen, Activity, Zap } from 'lucide-react';
+import { Shield, BookOpen, Activity, Cpu, ChevronDown } from 'lucide-react';
+import { OPENCODE_GO_MODELS } from '../models';
 
 interface HeaderProps {
   tokensConsumed: number;
   isBudgetExceeded: boolean;
-  activeProvider: string;
+  selectedModel: string;
+  onSelectModel: (modelId: string) => void;
   historyCount?: number;
   onScrollToHistory?: () => void;
 }
@@ -12,70 +14,123 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   tokensConsumed,
   isBudgetExceeded,
-  activeProvider,
+  selectedModel,
+  onSelectModel,
   historyCount = 0,
   onScrollToHistory,
 }) => {
+  // Providers for group headers
+  const providers = ['DeepSeek', 'Anthropic', 'OpenAI', 'Google Gemini', 'Meta & Qwen'] as const;
+
   return (
-    <header className="border-b border-brand-bronze/25 bg-sand-surface/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo & Brand Title */}
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg bg-sand-terminal border border-brand-gold/40 flex items-center justify-center shadow-glow-gold">
-            <Shield className="w-6 h-6 text-brand-gold" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-brand-ivory tracking-tight font-mono">
-                OpsMesh
-              </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-gold/15 text-brand-gold border border-brand-gold/30">
-                v1.1.0
-              </span>
+    <header className="border-b border-brand-bronze/25 bg-sand-surface/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 md:py-0 md:h-16 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 md:gap-4">
+        {/* Row 1 on Mobile / Left Side on Desktop */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-sand-terminal border border-brand-gold/40 flex items-center justify-center shadow-glow-gold flex-shrink-0">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
             </div>
-            <p className="text-xs text-sand-muted">
-              Autonomous Incident Commander Multi-Agent Platform
-            </p>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-lg sm:text-xl font-bold text-brand-ivory tracking-tight font-mono">
+                  OpsMesh
+                </h1>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-semibold bg-brand-gold/15 text-brand-gold border border-brand-gold/30">
+                  v1.1.0
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-sand-muted line-clamp-1">
+                Autonomous Incident Commander Multi-Agent Platform
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Action Links for Mobile (Auditoria & Docs) */}
+          <div className="flex items-center space-x-1.5 md:hidden">
+            {onScrollToHistory && (
+              <button
+                onClick={onScrollToHistory}
+                className="px-2 py-1 rounded bg-sand-terminal/90 border border-brand-gold/30 text-[10px] text-brand-gold font-mono active:scale-95 transition-transform"
+                title="Auditoria de Erros e Incidentes"
+              >
+                Audit ({historyCount})
+              </button>
+            )}
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded bg-brand-bronze/20 text-brand-gold border border-brand-bronze/40 active:scale-95 transition-transform"
+              title="Documentação de APIs (Scalar)"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
 
-        {/* FinOps Shield & Telemetry Status */}
-        <div className="hidden md:flex items-center space-x-3">
-          {/* Provider Badge */}
-          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-sand-terminal/80 border border-brand-bronze/30 text-xs">
-            <Zap className="w-3.5 h-3.5 text-brand-bronzeLight" />
-            <span className="text-sand-muted">Engine:</span>
-            <span className="text-brand-ivory font-mono uppercase text-[11px] font-semibold">
-              {activeProvider}
-            </span>
+        {/* Row 2 on Mobile / Right Side on Desktop: Model Selector & FinOps Telemetry */}
+        <div className="flex items-center justify-between md:justify-end gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+          {/* Dynamic OpenCode Go Model Selector */}
+          <div className="relative flex items-center flex-1 sm:flex-none">
+            <div className="absolute left-2.5 pointer-events-none text-brand-gold flex items-center">
+              <Cpu className="w-3.5 h-3.5" />
+            </div>
+            <select
+              value={selectedModel}
+              onChange={(e) => onSelectModel(e.target.value)}
+              className="w-full sm:w-auto appearance-none bg-sand-terminal/95 hover:bg-sand-terminal text-brand-ivory text-[11px] sm:text-xs font-mono font-medium pl-7 sm:pl-8 pr-7 py-1.5 rounded-md border border-brand-gold/40 hover:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold shadow-sm cursor-pointer transition-all"
+              title="Selecione o modelo de IA do OpenCode Go"
+            >
+              {providers.map((p) => {
+                const groupModels = OPENCODE_GO_MODELS.filter((m) => m.provider === p);
+                if (groupModels.length === 0) return null;
+                return (
+                  <optgroup key={p} label={`⚡ ${p} (OpenCode Go)`} className="bg-sand-terminal text-brand-gold font-bold">
+                    {groupModels.map((m) => (
+                      <option key={m.id} value={m.id} className="bg-sand-terminal text-brand-ivory font-normal">
+                        {m.name} [{m.badge}]
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
+            </select>
+            <div className="absolute right-2 pointer-events-none text-sand-muted">
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </div>
           </div>
 
           {/* Token & FinOps Circuit Breaker Monitor */}
-          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-md bg-sand-terminal/80 border border-brand-bronze/30 text-xs">
-            <Activity className={`w-3.5 h-3.5 ${isBudgetExceeded ? 'text-brand-crimson animate-pulse' : 'text-brand-emerald'}`} />
-            <span className="text-sand-muted">FinOps:</span>
+          <div
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md bg-sand-terminal/80 border border-brand-bronze/30 text-[11px] sm:text-xs flex-shrink-0"
+            title="Consumo de Tokens FinOps e Disjuntor de Segurança"
+          >
+            <Activity className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isBudgetExceeded ? 'text-brand-crimson animate-pulse' : 'text-brand-emerald'}`} />
+            <span className="text-sand-muted hidden sm:inline">FinOps:</span>
             <span className="text-brand-gold font-mono font-medium">
               {tokensConsumed.toLocaleString()} / 12k
             </span>
           </div>
 
-          {/* History Jump Button */}
+          {/* History Jump Button (Desktop) */}
           {onScrollToHistory && (
             <button
               onClick={onScrollToHistory}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-sand-terminal/90 hover:bg-sand-elevated border border-brand-gold/30 text-xs text-brand-gold hover:text-brand-ivory transition-all font-mono"
+              className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-sand-terminal/90 hover:bg-sand-elevated border border-brand-gold/30 text-xs text-brand-gold hover:text-brand-ivory transition-all font-mono shadow-sm"
               title="Rolar para a tabela de histórico de incidentes"
             >
               <span>Auditoria ({historyCount})</span>
             </button>
           )}
 
-          {/* Scalar Documentation Link (Global Standard) */}
+          {/* Scalar Documentation Link (Desktop) */}
           <a
             href="/docs"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-brand-bronze/20 hover:bg-brand-bronze/35 text-brand-gold hover:text-brand-ivory border border-brand-bronze/40 transition-all text-xs font-medium"
+            className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-brand-bronze/20 hover:bg-brand-bronze/35 text-brand-gold hover:text-brand-ivory border border-brand-bronze/40 transition-all text-xs font-medium shadow-sm"
+            title="Abrir documentação interativa de endpoints no Scalar"
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Scalar Docs</span>
