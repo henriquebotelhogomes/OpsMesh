@@ -19,8 +19,9 @@ WORKDIR /app
 # Install uv for blazing-fast package management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Copy pyproject.toml and install dependencies
-COPY pyproject.toml ./
+# Copy pyproject.toml, README.md, and source code to install dependencies
+COPY pyproject.toml README.md ./
+COPY src/ ./src/
 RUN uv pip install --system --no-cache -e .
 
 # ==========================================
@@ -40,7 +41,7 @@ COPY --from=backend-builder /usr/local/bin /usr/local/bin
 # Copy source code and docs
 COPY src/ /app/src/
 COPY docs/runbooks/ /app/docs/runbooks/
-COPY pyproject.toml /app/
+COPY pyproject.toml README.md /app/
 
 # Copy compiled frontend SPA
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist

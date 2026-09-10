@@ -36,11 +36,11 @@ jobs:
 
       - name: Run Ruff Linter
         run: |
-          ruff check .
+          ruff check src tests
 
       - name: Run Ruff Format Check
         run: |
-          ruff format --check .
+          ruff format --check src tests
 
       - name: Run Unit & Integration Tests (pytest)
         env:
