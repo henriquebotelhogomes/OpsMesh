@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {OPENCODE_GO_MODELS.map((m) => (
                 <option key={m.id} value={m.id} className="bg-sand-terminal text-brand-ivory font-normal">
-                  {m.name} — {m.badge}
+                  {m.name}
                 </option>
               ))}
             </select>
