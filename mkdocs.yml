@@ -1,0 +1,89 @@
+site_name: OpsMesh — Autonomous Incident Commander
+site_description: Sistema Multi-Agente Autônomo de Resposta a Incidentes Críticos (LangGraph + MCP/OpenAI + HITL)
+site_author: Equipe OpsMesh SRE & AI Engineering
+repo_url: https://github.com/OpsMesh/OpsMesh
+repo_name: OpsMesh/OpsMesh
+
+theme:
+  name: material
+  language: pt
+  palette:
+    # Modo Claro
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para modo escuro
+    # Modo Escuro
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      languages:
+        - locale: pt
+          default: true
+          name: Português
+          build: true
+        - locale: en
+          name: English
+          build: true
+        - locale: es
+          name: Español
+          build: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Início: index.md
+  - Requisitos de Produto (PRD): prd.md
+  - Arquitetura:
+      - Visão Geral: architecture/overview.md
+      - Universal Tool Gateway: architecture/tool_gateway.md
+      - FinOps & Scale-to-Zero: architecture/finops.md
+      - Observabilidade & Evals (LangSmith & Ragas): architecture/observability_evals.md
+  - Agentes & Contratos: agents/specification.md
+  - Runbooks de Emergência:
+      - Saturação de Conexões (Postgres): runbooks/connection_pool.md
+      - Timeout e 504 no Checkout: runbooks/checkout_timeout.md
+      - Latência no Gateway de Pagamentos: runbooks/payment_latency.md
+      - Vazamento de Memória & OOMKilled: runbooks/model_drift_oom.md
+  - API & Scalar Explorer: api/scalar_reference.md
+  - Roadmap de Tarefas: tasks.md

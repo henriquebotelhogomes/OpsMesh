@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+
+# Variáveis de ambiente & Segredos
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Testes e Qualidade
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentação MkDocs
+site/
+
+# Banco de dados e caches locais
+*.sqlite
+*.sqlite3
+*.db
+checkpoints/
+
+# Logs e Dados temporários
+*.log
+scratch/
+post_mortems/*.pdf
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Frontend / Node
+frontend/node_modules/
+frontend/.vite/
+frontend/dist/
