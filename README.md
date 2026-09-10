@@ -1,14 +1,22 @@
 # 🚨 OpsMesh — Autonomous Incident Commander
 
 <p align="center">
+  <a href="https://opsmesh-197215016090.us-central1.run.app" target="_blank">
+    <img src="https://img.shields.io/badge/LIVE_DEMO-Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Live Demo" />
+  </a>
+  <a href="https://opsmesh-197215016090.us-central1.run.app/docs" target="_blank">
+    <img src="https://img.shields.io/badge/API_DOCS-Scalar-6366F1?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="Scalar Docs" />
+  </a>
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
   <img src="https://img.shields.io/badge/LangGraph-Multi--Agent-FF6F00?style=for-the-badge&logo=langchain&logoColor=white" alt="LangGraph" />
   <img src="https://img.shields.io/badge/FastAPI-REST_API-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/API_Docs-Scalar-6366F1?style=for-the-badge" alt="Scalar API" />
-  <img src="https://img.shields.io/badge/Tools-MCP_%2B_OpenAI-000000?style=for-the-badge&logo=anthropic&logoColor=white" alt="MCP + OpenAI" />
   <img src="https://img.shields.io/badge/FinOps-Scale--to--Zero-22C55E?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Scale-to-Zero" />
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="License Apache 2.0" />
 </p>
+
+> 🌐 **Deploy Oficial em Produção (Google Cloud Run):**  
+> 🔗 **Console SRE & Chaos Studio:** [https://opsmesh-197215016090.us-central1.run.app](https://opsmesh-197215016090.us-central1.run.app)  
+> 📖 **Documentação Interativa de APIs (Scalar):** [https://opsmesh-197215016090.us-central1.run.app/docs](https://opsmesh-197215016090.us-central1.run.app/docs)
 
 ---
 
