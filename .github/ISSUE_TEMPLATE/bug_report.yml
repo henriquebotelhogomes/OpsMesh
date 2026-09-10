@@ -1,0 +1,37 @@
+name: "🐛 Relatório de Bug / Anomalia"
+description: "Crie um relatório para nos ajudar a reproduzir e corrigir uma anomalia."
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por registrar este problema no **OpsMesh**!
+  - type: input
+    id: version
+    attributes:
+      label: Versão do OpsMesh
+      description: Qual versão você está executando? (Ex: v1.1.0)
+      placeholder: v1.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Comportamento Atual
+      description: Uma descrição clara e concisa do que aconteceu.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento Esperado
+      description: Uma descrição do que você esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Evidências do Agente
+      description: Cole aqui trechos de logs ou saídas de agentes (PII mascarada).
+      render: shell

@@ -1,0 +1,28 @@
+name: "💡 Sugestão de Melhoria / Nova Feature"
+description: "Proponha uma nova funcionalidade, agente ou integração para o OpsMesh."
+title: "[FEATURE]: "
+labels: ["enhancement", "idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por contribuir com ideias para o ecossistema **OpsMesh**!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema ou dor isso resolve?
+      description: Explique o caso de uso ou a limitação atual.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução Proposta
+      description: Como você imagina que essa funcionalidade deve se comportar?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas Consideradas
+      description: Outras ferramentas ou abordagens analisadas.
