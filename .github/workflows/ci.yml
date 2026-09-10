@@ -44,7 +44,7 @@ jobs:
 
       - name: Run Unit & Integration Tests (pytest)
         env:
-          APP_ENV: testing
+          APP_ENV: test
           LANGCHAIN_TRACING_V2: "false"
         run: |
           pytest -v --tb=short
