@@ -3,6 +3,11 @@
 > **Autonomous Multi-Agent System for Critical Incident Response & SRE**  
 > Built with **LangGraph**, **Model Context Protocol (MCP)**, **OpenAI Tools (DeepSeek / GPT / Llama)**, **PostgreSQL Serverless**, and **Human-in-the-Loop (HITL)**.
 
+> 🌐 **Official Live Production Environment (Google Cloud Run):**  
+> 🔗 **SRE Console & Chaos Studio:** [https://opsmesh-197215016090.us-central1.run.app](https://opsmesh-197215016090.us-central1.run.app)  
+> 📖 **Interactive API Documentation (Scalar):** [https://opsmesh-197215016090.us-central1.run.app/docs](https://opsmesh-197215016090.us-central1.run.app/docs)  
+> 🩺 **Health Check & Telemetry:** [https://opsmesh-197215016090.us-central1.run.app/health](https://opsmesh-197215016090.us-central1.run.app/health)
+
 ---
 
 ## 🌟 What is OpsMesh?

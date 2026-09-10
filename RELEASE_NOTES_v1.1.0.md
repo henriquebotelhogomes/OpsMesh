@@ -2,6 +2,11 @@
 
 OpsMesh é uma plataforma multi-agente de nível Staff SRE projetada para orquestrar, diagnosticar e remediar incidentes em sistemas distribuídos de missão crítica, reduzindo o MTTR (Mean Time to Resolution) de horas para minutos sem abrir mão de segurança e governança.
 
+> 🌐 **Ambiente Oficial Online (Google Cloud Run):**  
+> 🔗 **Console SRE & Chaos Studio:** [https://opsmesh-197215016090.us-central1.run.app](https://opsmesh-197215016090.us-central1.run.app)  
+> 📖 **Documentação Interativa de APIs (Scalar):** [https://opsmesh-197215016090.us-central1.run.app/docs](https://opsmesh-197215016090.us-central1.run.app/docs)  
+> 🩺 **Health Check & Telemetria:** [https://opsmesh-197215016090.us-central1.run.app/health](https://opsmesh-197215016090.us-central1.run.app/health)
+
 ---
 
 ### 🌟 Destaques da Versão

@@ -18,10 +18,12 @@ O **Scalar** (`scalar/fastapi` / `@scalar/api-reference`) é uma ferramenta de r
 
 Quando a API FastAPI do OpsMesh estiver em execução:
 
-* **Endpoint Oficial do Scalar:**
+* **Endpoint Oficial do Scalar (Produção Online):**
+  [https://opsmesh-197215016090.us-central1.run.app/docs](https://opsmesh-197215016090.us-central1.run.app/docs)
+* **Endpoint Local de Desenvolvimento:**
   `http://localhost:8000/docs` ou `http://localhost:8000/scalar`
-* **Especificação OpenAPI JSON:**
-  `http://localhost:8000/openapi.json`
+* **Especificação OpenAPI JSON (Produção):**
+  [https://opsmesh-197215016090.us-central1.run.app/openapi.json](https://opsmesh-197215016090.us-central1.run.app/openapi.json)
 
 ---
 
