@@ -8,30 +8,30 @@ A arquitetura do OpsMesh é projetada para ser determinística, auditável, resi
 
 ```mermaid
 graph TD
-    Alert[Webhook: POST /api/v1/incidents/webhook] --> PII[PII Sanitizer Middleware\nMascara PII Pública, Preserva RFC 1918]
-    PII --> GuardrailCheck{Token Budget & Circuit Breaker?}
+    Alert["Webhook: POST /api/v1/incidents/webhook"] --> PII["PII Sanitizer Middleware<br/>Mascara PII Pública, Preserva RFC 1918"]
+    PII --> GuardrailCheck{"Token Budget & Circuit Breaker?"}
     
-    GuardrailCheck -->|Cota Excedida| 429[HTTP 429: Cota Diária Atingida\nConvite para BYOK ou Docker Local]
-    GuardrailCheck -->|Autorizado / BYOK| Supervisor[Supervisor: Incident Commander]
+    GuardrailCheck -->|Cota Excedida| Http429["HTTP 429: Cota Diária Atingida<br/>Convite para BYOK ou Docker Local"]
+    GuardrailCheck -->|Autorizado / BYOK| Supervisor["Supervisor: Incident Commander"]
     
     subgraph Specialists [Agentes Especialistas]
-        Supervisor -->|Diagnóstico de Logs| LogAgent[Log & Trace Analyst Agent]
-        Supervisor -->|Diagnóstico de Infra| InfraAgent[Database & Infra Agent]
-        Supervisor -->|Consulta de Manuais| RAGAgent[Runbook Knowledge Agent]
+        Supervisor -->|Diagnóstico de Logs| LogAgent["Log & Trace Analyst Agent"]
+        Supervisor -->|Diagnóstico de Infra| InfraAgent["Database & Infra Agent"]
+        Supervisor -->|Consulta de Manuais| RAGAgent["Runbook Knowledge Agent"]
         
-        LogAgent --> Synthesis[Nó de Síntese]
+        LogAgent --> Synthesis["Nó de Síntese"]
         InfraAgent --> Synthesis
         RAGAgent --> Synthesis
     end
     
-    Synthesis --> Remediation[Remediation Engineer Agent]
-    Remediation --> HITL{Ação Crítica?}
+    Synthesis --> Remediation["Remediation Engineer Agent"]
+    Remediation --> HITL{"Ação Crítica?"}
     
-    HITL -->|interrupt_before| Checkpoint[(PostgreSQL Serverless Checkpointer)]
-    Checkpoint --> SRE[Notificação ao Engenheiro SRE]
-    SRE -->|POST /api/v1/incidents/{id}/resume| Resume[Retomada do Grafo]
-    Resume --> Exec[Execução Segura da Ação]
-    Exec --> PostMortem[AuditPostMortemAgent: Relatório Estruturado & PDF]
+    HITL -->|interrupt_before| Checkpoint[("PostgreSQL Serverless Checkpointer")]
+    Checkpoint --> SRE["Notificação ao Engenheiro SRE"]
+    SRE -->|"POST /api/v1/incidents/:id/resume"| Resume["Retomada do Grafo"]
+    Resume --> Exec["Execução Segura da Ação"]
+    Exec --> PostMortem["AuditPostMortemAgent: Relatório Estruturado & PDF"]
 ```
 
 ---

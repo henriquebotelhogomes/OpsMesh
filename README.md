@@ -92,43 +92,43 @@ Após a mitigação, o sistema gera o Post-Mortem oficial com hash SHA-256 e dow
 
 ```mermaid
 graph TD
-    Alert[Webhook: POST /api/v1/incidents/webhook] --> PII[PII Sanitizer Middleware\nMascara PII Pública, Preserva RFC 1918]
-    PII --> GuardrailCheck{Token Budget & Circuit Breaker?}
+    Alert["Webhook: POST /api/v1/incidents/webhook"] --> PII["PII Sanitizer Middleware<br/>Mascara PII Pública, Preserva RFC 1918"]
+    PII --> GuardrailCheck{"Token Budget & Circuit Breaker?"}
     
-    GuardrailCheck -->|Cota Excedida| 429[HTTP 429: Cota Diária Atingida\nConvite para BYOK ou Docker Local]
-    GuardrailCheck -->|Autorizado / BYOK| Supervisor[Supervisor: Incident Commander\nLangGraph with_structured_output]
+    GuardrailCheck -->|Cota Excedida| Http429["HTTP 429: Cota Diária Atingida<br/>Convite para BYOK ou Docker Local"]
+    GuardrailCheck -->|Autorizado / BYOK| Supervisor["Supervisor: Incident Commander<br/>LangGraph with_structured_output"]
     
     subgraph ToolGateway [Universal Tool Gateway: MCP + OpenAI Tools]
-        Adapter[Protocol Adapter & Dispatcher]
-        MCP_Server[Servidores MCP: Anthropic stdio/SSE]
-        OpenAI_Tools[OpenAI Function Calling: DeepSeek / GPT]
+        Adapter["Protocol Adapter & Dispatcher"]
+        MCP_Server["Servidores MCP: Anthropic stdio/SSE"]
+        OpenAI_Tools["OpenAI Function Calling: DeepSeek / GPT"]
         Adapter <--> MCP_Server
         Adapter <--> OpenAI_Tools
     end
     
     subgraph AgentMesh [Equipe de Agentes Especialistas - LangGraph]
-        Supervisor -->|Diagnóstico de Logs| LogAgent[LogTraceAnalystAgent]
-        Supervisor -->|Análise de Infra| InfraAgent[DatabaseInfraAgent]
-        Supervisor -->|Manuais de Crise| RAGAgent[RunbookKnowledgeAgent]
+        Supervisor -->|Diagnóstico de Logs| LogAgent["LogTraceAnalystAgent"]
+        Supervisor -->|Análise de Infra| InfraAgent["DatabaseInfraAgent"]
+        Supervisor -->|Manuais de Crise| RAGAgent["RunbookKnowledgeAgent"]
         
         LogAgent <--> ToolGateway
         InfraAgent <--> ToolGateway
         
-        LogAgent --> Synthesis[Nó de Síntese]
+        LogAgent --> Synthesis["Nó de Síntese"]
         InfraAgent --> Synthesis
         RAGAgent --> Synthesis
     end
     
-    Synthesis --> RemediationPlan[RemediationEngineerAgent:\nGeração do Plano & Diff]
+    Synthesis --> RemediationPlan["RemediationEngineerAgent:<br/>Geração do Plano & Diff"]
     
-    RemediationPlan --> HITL_Gate{HITL Gate: Ação Crítica?}
-    HITL_Gate -->|interrupt_before| PausedState[(LangGraph Checkpointer:\nPostgreSQL Serverless)]
+    RemediationPlan --> HITL_Gate{"HITL Gate: Ação Crítica?"}
+    HITL_Gate -->|interrupt_before| PausedState[("LangGraph Checkpointer:<br/>PostgreSQL Serverless")]
     
-    PausedState --> SRE_Notification([Engenheiro Humano de Plantão\nNotificação com Diff])
+    PausedState --> SRE_Notification(["Engenheiro Humano de Plantão<br/>Notificação com Diff"])
     
-    SRE_Notification -->|Aprovar| ResumeEndpoint[POST /api/v1/incidents/{incident_id}/resume]
-    ResumeEndpoint --> Execution[Execução Segura da Ação]
-    Execution --> PostMortem[AuditPostMortemAgent: Relatório Estruturado & PDF]
+    SRE_Notification -->|Aprovar| ResumeEndpoint["POST /api/v1/incidents/:id/resume"]
+    ResumeEndpoint --> Execution["Execução Segura da Ação"]
+    Execution --> PostMortem["AuditPostMortemAgent: Relatório Estruturado & PDF"]
 ```
 
 ---

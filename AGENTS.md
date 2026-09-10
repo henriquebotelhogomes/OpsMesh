@@ -14,24 +14,24 @@ A equipe do OpsMesh opera em uma topologia **Supervisor-Workers** hierárquica e
 
 ```mermaid
 graph TD
-    Alert[Alerta Ingerido + PII Sanitized] --> Supervisor[IncidentSupervisorAgent\nOrquestrador e Comandante]
+    Alert["Alerta Ingerido + PII Sanitized"] --> Supervisor["IncidentSupervisorAgent<br/>Orquestrador e Comandante"]
     
     subgraph Specialists [Agentes Especialistas em Paralelo / Sequencial]
-        Supervisor -->|Delegar Diagnóstico| LogAgent[LogTraceAnalystAgent\nLogs, Traces & LogHub]
-        Supervisor -->|Delegar Infraestrutura| InfraAgent[DatabaseInfraAgent\nPostgres, Redis, K8s]
-        Supervisor -->|Consultar Runbooks| RAGAgent[RunbookKnowledgeAgent\nRAG Híbrido Qdrant+BM25]
+        Supervisor -->|Delegar Diagnóstico| LogAgent["LogTraceAnalystAgent<br/>Logs, Traces & LogHub"]
+        Supervisor -->|Delegar Infraestrutura| InfraAgent["DatabaseInfraAgent<br/>Postgres, Redis, K8s"]
+        Supervisor -->|Consultar Runbooks| RAGAgent["RunbookKnowledgeAgent<br/>RAG Híbrido Qdrant+BM25"]
     end
     
-    LogAgent --> Consolidation[Nó de Consolidação de Evidências]
+    LogAgent --> Consolidation["Nó de Consolidação de Evidências"]
     InfraAgent --> Consolidation
     RAGAgent --> Consolidation
     
-    Consolidation --> RemediationAgent[RemediationEngineerAgent\nPlano de Ação & Diff]
-    RemediationAgent --> HITL_Gate{HITL Gate: Ação Crítica?}
+    Consolidation --> RemediationAgent["RemediationEngineerAgent<br/>Plano de Ação & Diff"]
+    RemediationAgent --> HITL_Gate{"HITL Gate: Ação Crítica?"}
     
-    HITL_Gate -->|interrupt_before| HumanApproval[Aprovação Humana Obrigatória\nSRE On-Call]
-    HumanApproval --> ResumeExecution[Execução Controlada\nPOST /api/v1/incidents/{id}/resume]
-    ResumeExecution --> AuditAgent[AuditPostMortemAgent\nTimeline, Auditoria e Relatório PDF]
+    HITL_Gate -->|interrupt_before| HumanApproval["Aprovação Humana Obrigatória<br/>SRE On-Call"]
+    HumanApproval --> ResumeExecution["Execução Controlada<br/>POST /api/v1/incidents/:id/resume"]
+    ResumeExecution --> AuditAgent["AuditPostMortemAgent<br/>Timeline, Auditoria e Relatório PDF"]
 ```
 
 ---
