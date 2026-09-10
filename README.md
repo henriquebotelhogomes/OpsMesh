@@ -25,6 +25,69 @@ Quando alertas críticos disparam (Datadog, Prometheus, Grafana), o OpsMesh:
 
 ---
 
+## 💡 Por que o OpsMesh? (Comparativo com Datadog & Sentry)
+
+Muitos engenheiros se perguntam: *"O OpsMesh substitui ou faz o mesmo que o Datadog e o Sentry?"*  
+A resposta é **não — o OpsMesh complementa e expande a observabilidade moderna para o nível de Remediação Ativa e Prescritiva**:
+
+* **Datadog e Sentry (Observabilidade Passiva):** São como os **alarmes de incêndio e termômetros** do edifício. Eles monitoram exceções no código, desenham gráficos e alertam quando algo quebrou (*"Alerta: Banco de dados com 98% de conexões travadas"*). Porém, **eles não resolvem o problema**. Às 3h da manhã, o engenheiro humano (SRE de plantão) é quem precisa acordar, ler wikis internas, abrir terminais e tentar descobrir os comandos corretos.
+* **OpsMesh (Remediação Prescritiva com IA & Portão HITL):** É a **brigada de bombeiros inteligente**. Ele consome o alerta do Datadog/Sentry, aciona agentes para investigar logs e infraestrutura em paralelo, consulta os manuais da empresa (SOPs via RAG Híbrido) e entrega **a solução cirúrgica pronta** (comandos, diff de patch e rollback), aguardando apenas **1 clique de autorização humana** para resolver a crise.
+
+```text
+┌─────────────────────────────────────────┐       ┌──────────────────────────────────────────────┐
+│       DATADOG / SENTRY / GRAFANA        │  ==>  │                   OPSMESH                    │
+│        (Observabilidade Passiva)        │       │             (Remediação Ativa)               │
+│                                         │       │                                              │
+│  "Alerta: Erro 504 no Checkout e        │       │  1. Investiga logs, traces e pods em paralelo│
+│   Pool PostgreSQL em 98% de saturação"  │       │  2. Consulta os Runbooks (SOPs) via RAG      │
+│                                         │       │  3. Formula o plano exato de mitigação       │
+│  (Para por aqui. Acorda o SRE on-call)  │       │  4. Portão HITL: SRE aprova com 1 clique     │
+│                                         │       │  5. Emite relatório Post-Mortem em PDF       │
+└─────────────────────────────────────────┘       └──────────────────────────────────────────────┘
+```
+
+---
+
+### 🕹️ Dois Modos de Operação: Demonstração (Chaos Studio) vs. Produção Real
+
+| Modo | Como Funciona | Para Quem Serve | Custo |
+| :--- | :--- | :--- | :--- |
+| **Modo Sandbox / Chaos Studio** *(Botão "Simular Crise")* | O OpsMesh utiliza seu **emulador interno de telemetria** baseado em datasets reais do *LogHub*. Ele simula o envio de alertas no formato do Datadog/Prometheus sem necessidade de contas pagas ou servidores externos. | Recrutadores, Tech Leads, demonstrações de portfólio e testes locais. | **$0.00** *(Zero-Token Replay)* |
+| **Modo Produção Corporativa** *(Webhook Universal)* | O OpsMesh expõe o endpoint `POST /api/v1/incidents/webhook`. Basta cadastrar essa URL nos Webhooks do seu **Datadog**, **Sentry**, **Grafana** ou **PagerDuty**. Quando um alerta real dispara, o OpsMesh inicia a investigação automaticamente. | Ambientes de staging e produção corporativa em nuvem (GCP, AWS, Azure, K8s). | Conforme tokens de LLM configurados |
+
+---
+
+### 📝 Exemplo Prático de Fluxo (Ponta a Ponta)
+
+#### 1. O Alerta Chega (via Datadog ou Chaos Studio)
+```json
+POST /api/v1/incidents/webhook
+{
+  "service": "order-service",
+  "severity": "P0_CRITICAL",
+  "message": "FATAL: remaining connection slots are reserved on node 10.244.1.15",
+  "details": { "active_connections": 98, "max_connections": 100 }
+}
+```
+
+#### 2. O OpsMesh Investiga e Formula o Tratamento
+A equipe de agentes correlaciona os logs, analisa o tráfego e consulta o manual `docs/runbooks/connection_pool.md` via RAG Híbrido, gerando o plano cirúrgico:
+```yaml
+Ação Proposta: DATABASE_TERMINATE_BACKENDS (Risco Alto)
+Comandos Gerados:
+  $ SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction' AND state_change < current_timestamp - INTERVAL '5 minutes';
+  $ kubectl rollout restart deployment order-service -n production
+Plano de Rollback: kubectl rollout restart deployment pgbouncer
+```
+
+#### 3. Portão Human-in-the-Loop (HITL)
+O sistema **bloqueia qualquer ação destrutiva** e apresenta o diagnóstico completo na interface. O engenheiro revisa a causa raiz e clica em **"Aprovar Mitigação"** (`POST /api/v1/incidents/{id}/resume`).
+
+#### 4. Auditoria Criptográfica & Post-Mortem
+Após a mitigação, o sistema gera o Post-Mortem oficial com hash SHA-256 e download imediato em PDF.
+
+---
+
 ## 🏛️ Topologia Arquitetural
 
 ```mermaid
