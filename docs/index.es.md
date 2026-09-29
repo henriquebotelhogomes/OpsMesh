@@ -28,7 +28,7 @@
 * **FinOps Serverless ($0/mes ocioso):** Diseñado para **Scale-to-Zero** en Google Cloud Run y Azure Container Apps. Sin alertas activas, el costo de cómputo es estrictamente cero.
 * **Universal Tool Gateway:** Compatibilidad nativa con herramientas **Anthropic MCP** y **OpenAI Function Calling (DeepSeek / GPT)**.
 * **Modelos de Decisión Especializados (Jev First):** Ruteo y convergencia del Supervisor impulsados por **Jev (`typesafe/jev-latest` en OpenRouter)** con latencia sub-30ms, coste de salida $0.00 y primitivas nativas (`Choice`, `Noul`).
-* **OpenRouter Gateway y Flota Free:** Acceso a modelos de razonamiento gratuitos (`:free`) con cuotas ampliadas por saldo mantenido (> $10) y soporte BYOK (`X-OpenRouter-API-Key`).
+* **OpenRouter Gateway y Flota Free:** Acceso a la flota oficial de modelos gratuitos (`openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) con cuotas ampliadas por saldo mantenido (> $10) y soporte BYOK (`X-OpenRouter-API-Key`).
 * **Datadog Pro APM y Tracing Distribuido:** Instrumentación nativa (`ddtrace`) con propagación de contexto (`traceparent`, `x-datadog-trace-id`), conectando anomalías de Chaos Lab con los nodos de LangGraph.
 * **Almacenamiento Zero-Daemon:** **LanceDB** para búsqueda vectorial híbrida en disco ($0 de infra) y **DuckDB + Parquet** para analítica instantánea de MTTR e incidentes históricos.
 * **Red-Teaming Gate Automatizado (Promptfoo):** Pentesting continuo en GitHub Actions CI auditando contra inyecciones de prompt, desvío de HITL y fuga de credenciales.

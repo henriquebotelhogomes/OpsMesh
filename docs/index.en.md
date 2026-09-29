@@ -28,7 +28,7 @@
 * **FinOps Serverless ($0/month):** Designed for **Scale-to-Zero** on Google Cloud Run and Azure Container Apps. When idle, computing costs are exactly zero.
 * **Specialized Decision Models (Jev First):** Incident Supervisor routing and convergence powered by **Jev (`typesafe/jev-latest` on OpenRouter)** with sub-30ms latency, zero output cost, and native `Choice`/`Noul` primitives.
 * **Universal Tool Gateway:** Seamless dual-support for **Anthropic MCP** and **OpenAI Function Calling (DeepSeek / GPT)**.
-* **OpenRouter Gateway & Free Fleet:** Integrated access to high-capacity reasoning models (`:free`) unlocked by positive account balance (> $10) and full BYOK support (`X-OpenRouter-API-Key`).
+* **OpenRouter Gateway & Free Fleet:** Integrated access to the official free models fleet (`openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) unlocked by positive balance (> $10) and full BYOK support (`X-OpenRouter-API-Key`).
 * **Datadog Pro APM & Distributed Tracing:** Native instrumentation (`ddtrace`) with distributed context propagation (`traceparent`, `x-datadog-trace-id`), connecting Chaos Lab faults to LangGraph nodes.
 * **Zero-Daemon Serverless Storage:** **LanceDB** for disk-based hybrid vector search ($0 infra) and **DuckDB + Parquet** for instant historical MTTR and incident analytics.
 * **Automated Red-Teaming Gate (Promptfoo):** Continuous pentesting in GitHub Actions CI auditing against prompt injection, HITL bypass, and credential leakage.

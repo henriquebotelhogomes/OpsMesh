@@ -149,7 +149,7 @@
 ## 🔮 Fase 11: Evolução do Harness — Decision Models (Jev), OpenRouter, Datadog APM, LanceDB/DuckDB & Promptfoo
 - [ ] **Pilar 1 — Decision Model Jev & OpenRouter Gateway:**
   - [ ] Integração do modelo `typesafe/jev-latest` via OpenRouter no `IncidentSupervisorAgent` e nas arestas condicionais (`conditional_edges`) do LangGraph, com primitivas nativas (`Choice`, `Noul`) e latência sub-30ms ($0.00 output).
-  - [ ] Suporte nativo ao provedor OpenRouter e à frota de modelos gratuitos (`:free`, ex: `deepseek/deepseek-r1:free`, `meta-llama/llama-3.3-70b-instruct:free`) desbloqueada por saldo > $10 mantido, com suporte a BYOK (`X-OpenRouter-API-Key`).
+  - [ ] Suporte nativo ao provedor OpenRouter e à frota de modelos gratuitos (`https://openrouter.ai/collections/free-models`, ex: `openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) desbloqueada por saldo > $10 mantido, com suporte a BYOK (`X-OpenRouter-API-Key`).
 - [ ] **Pilar 2 — Observabilidade Unificada com Datadog Pro APM (`ddtrace`):**
   - [ ] Instrumentação nativa do OpsMesh com `ddtrace`, registrando spans hierárquicos para os nós do LangGraph.
   - [ ] Propagação de contexto distribuído (`traceparent`, `x-datadog-trace-id`) unificando o ciclo de vida do incidente do Chaos Lab ao OpsMesh.

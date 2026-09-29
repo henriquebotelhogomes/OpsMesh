@@ -117,7 +117,7 @@ class IncidentState(TypedDict):
 * **Modo Decision Model Especializado (Jev First):**
   * Para a tomada de decisão de roteamento e avaliação booleana de convergência (`is_investigation_complete`), o Supervisor prioriza o modelo **Jev (`typesafe/jev-latest` no OpenRouter)**.
   * Utiliza as primitivas `Choice` (seleção categórica entre `["LogTraceAnalystAgent", "DatabaseInfraAgent", "RunbookKnowledgeAgent"]`) e `Noul` (convergência booleana calibrada de 0.0 a 1.0).
-  * **Benefício FinOps & Performance:** Latência de decisão sub-30ms e custo de output \$0.00, reservando LLMs generativos (DeepSeek V4.1 Flash, Gemini 3.8 Flash, OpenRouter `:free`) para a síntese de hipótese.
+  * **Benefício FinOps & Performance:** Latência de decisão sub-30ms e custo de output \$0.00, reservando LLMs generativos (DeepSeek V4.1 Flash, Gemini 3.8 Flash, ou modelos OpenRouter `:free` como `openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`) para a síntese de hipótese.
 * **Contrato de Saída Estruturada (`SupervisorDecision`):**
 
 ```python

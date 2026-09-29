@@ -289,7 +289,7 @@ graph TD
 | :--- | :--- |
 | **Decision Models Especializados** | Roteamento e convergência do Supervisor via **Jev (`typesafe/jev-latest` no OpenRouter)** com latência sub-30ms, $0.00 de custo de saída e primitivas nativas (`Choice`, `Noul`). |
 | **Universal Tool Gateway** | Suporta simultaneamente **Anthropic MCP** (stdio/SSE) e **OpenAI Function Calling** (DeepSeek V3/R1, GPT-4o, Llama 3 via Ollama/vLLM). |
-| **OpenRouter & Frota Free** | Gateway integrado com acesso a modelos de raciocínio gratuitos (`:free`) com cotas ampliadas por saldo mantido > $10 e suporte BYOK (`X-OpenRouter-API-Key`). |
+| **OpenRouter & Frota Free** | Gateway integrado com acesso à frota oficial de modelos gratuitos (`openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) com cotas ampliadas por saldo mantido > $10 e suporte BYOK (`X-OpenRouter-API-Key`). |
 | **Datadog Pro APM & Tracing** | Tracing distribuído ponta a ponta (`ddtrace`) com propagação de contexto (`traceparent`), correlacionando falhas do Chaos Lab e nós do LangGraph no OpsMesh. |
 | **FinOps & Scale-to-Zero** | Elegível para **Google Cloud Run** e **Azure Container Apps** com `min_instances = 0` (**$0/mês ocioso**). |
 | **Armazenamento Zero-Daemon** | Suporte a **LanceDB** (vetores serverless em disco, $0 de infra) e **DuckDB + Parquet** para auditoria e queries analíticas OLAP de MTTR histórico. |

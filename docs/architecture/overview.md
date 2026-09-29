@@ -68,7 +68,7 @@ A remediação formulada pelo `RemediationEngineerAgent` e aprovada pelo engenhe
 Para tarefas que exigem estritamente classificação, roteamento e determinação de parada sem geração de texto longo para o usuário:
 - **Jev (`typesafe/jev-latest` via OpenRouter):** Modelo "System One" ultrarrápido com latência sub-30ms e custo de output \$0.00.
 - **Primitivas Nativas:** `Choice` (seleção categórica de especialista para o próximo passo) e `Noul` (decisão booleana de convergência da causa raiz `is_investigation_complete` com probabilidade calibrada de 0.0 a 1.0).
-- **OpenRouter Provider & Frota `:free`:** Suporte nativo ao OpenRouter, com acesso à frota de modelos de raciocínio de alta capacidade desbloqueados por saldo mantido > \$10 (`meta-llama/llama-3.3-70b-instruct:free`, `deepseek/deepseek-r1:free`).
+- **OpenRouter Provider & Frota `:free` (Coleção Oficial):** Suporte nativo ao OpenRouter, com acesso à frota oficial de modelos gratuitos (`https://openrouter.ai/collections/free-models`) desbloqueada por saldo mantido > \$10 (`openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`).
 
 ### 7. Observabilidade Unificada & Tracing Distribuído Datadog Pro APM (`ddtrace`)
 - **Tracing de Nós LangGraph:** O OpsMesh é instrumentado com `dd-trace-py`, registrando spans hierárquicos para o Supervisor, Analistas e Remediação.
