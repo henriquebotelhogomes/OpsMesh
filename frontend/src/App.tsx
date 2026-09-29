@@ -8,17 +8,20 @@ import {
   simulateCrisis,
 } from './api';
 import { AgentTopology } from './components/AgentTopology';
+import { ArchitectureGuide } from './components/ArchitectureGuide';
 import { ChaosBar } from './components/ChaosBar';
 import { EvidenceViewer } from './components/EvidenceViewer';
-import { ExplainerBanner } from './components/ExplainerBanner';
 import { Header } from './components/Header';
 import { HITLHeroCard } from './components/HITLHeroCard';
 import { IncidentHistory } from './components/IncidentHistory';
+import { NavigationTabs, AppTab } from './components/NavigationTabs';
 import { PostMortemViewer } from './components/PostMortemViewer';
 import { ChaosScenario, Incident, PostMortemReport } from './types';
 import { DEFAULT_MODEL_ID, OPENCODE_GO_MODELS } from './models';
+import { ArrowRight, BookOpen, ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<AppTab>('console');
   const [scenarios, setScenarios] = useState<ChaosScenario[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>('postgres-pool');
   const [replayMode, setReplayMode] = useState<boolean>(true);
@@ -75,6 +78,7 @@ export const App: React.FC = () => {
   const handleTriggerCrisis = async () => {
     setIsSimulating(true);
     setPostMortemReport(null);
+    setActiveTab('console');
     try {
       const mode = replayMode ? 'replay' : 'live';
       const result = await simulateCrisis(selectedScenarioId, mode, selectedModel);
@@ -141,16 +145,13 @@ export const App: React.FC = () => {
     } else {
       setPostMortemReport(null);
     }
-    window.scrollTo({ top: 350, behavior: 'smooth' });
-  };
-
-  const scrollToHistory = () => {
-    document.getElementById('incident-history-section')?.scrollIntoView({ behavior: 'smooth' });
+    setActiveTab('console');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-sand-base relative overflow-x-hidden pb-16">
-      {/* Ambient Lighting Background from Portfolio_Pessoal */}
+      {/* Ambient Lighting Background */}
       <div className="ambient-glow"></div>
 
       {/* Main Content Layout */}
@@ -161,69 +162,107 @@ export const App: React.FC = () => {
           selectedModel={selectedModel}
           onSelectModel={handleSelectModel}
           historyCount={incidentsHistory.length}
-          onScrollToHistory={scrollToHistory}
+          onScrollToHistory={() => setActiveTab('audit')}
+        />
+
+        {/* Global Multi-Tab Navigation Strip */}
+        <NavigationTabs
+          activeTab={activeTab}
+          onChangeTab={(tab) => setActiveTab(tab)}
+          hasActiveCrisis={
+            activeIncident?.status === 'INVESTIGATING' || activeIncident?.status === 'MITIGATING'
+          }
+          isAwaitingApproval={activeIncident?.status === 'AWAITING_APPROVAL'}
+          auditCount={incidentsHistory.length}
         />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          {/* Executive & Architecture Explainer Guide */}
-          <ExplainerBanner />
+          {/* TAB 1: Console Operacional (Central de Incidentes) */}
+          {activeTab === 'console' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Subtle Helper Bar with link to Guide */}
+              <div className="bg-sand-terminal/60 border border-brand-bronze/20 rounded-lg px-4 py-2.5 flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2 text-sand-muted">
+                  <ShieldCheck className="w-4 h-4 text-brand-gold flex-shrink-0" />
+                  <span>
+                    Console de Resolução Autônoma com Portão Human-in-the-Loop inviolável.
+                  </span>
+                </div>
+                <button
+                  onClick={() => setActiveTab('guide')}
+                  className="hidden sm:flex items-center space-x-1.5 text-brand-gold hover:text-brand-goldLight font-mono text-xs font-medium transition-colors"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Ver Como Funciona a Arquitetura</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-          {/* Chaos Studio Bar */}
-          <ChaosBar
-            scenarios={scenarios}
-            selectedScenarioId={selectedScenarioId}
-            isSimulating={isSimulating}
-            replayMode={replayMode}
-            onSelectScenario={(id) => setSelectedScenarioId(id)}
-            onToggleReplayMode={(mode) => setReplayMode(mode)}
-            onTriggerCrisis={handleTriggerCrisis}
-          />
+              {/* Chaos Studio Bar */}
+              <ChaosBar
+                scenarios={scenarios}
+                selectedScenarioId={selectedScenarioId}
+                isSimulating={isSimulating}
+                replayMode={replayMode}
+                onSelectScenario={(id) => setSelectedScenarioId(id)}
+                onToggleReplayMode={(mode) => setReplayMode(mode)}
+                onTriggerCrisis={handleTriggerCrisis}
+              />
 
-          {/* Multi-Agent Network Topology */}
-          <AgentTopology
-            status={activeIncident?.status || 'INVESTIGATING'}
-            agentResults={activeIncident?.agent_results || {}}
-            hasRemediationPlan={Boolean(activeIncident?.remediation_plan)}
-          />
+              {/* Multi-Agent Network Topology */}
+              <AgentTopology
+                status={activeIncident?.status || 'INVESTIGATING'}
+                agentResults={activeIncident?.agent_results || {}}
+                hasRemediationPlan={Boolean(activeIncident?.remediation_plan)}
+              />
 
-          {/* Human-in-the-Loop (HITL) Hero Card - Prominent when Awaiting Approval */}
-          {activeIncident && activeIncident.status === 'AWAITING_APPROVAL' && (
-            <HITLHeroCard
-              incidentId={activeIncident.incident_id}
-              rootCauseSummary={activeIncident.root_cause_summary}
-              remediationPlan={activeIncident.remediation_plan}
-              isResuming={isResuming}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
+              {/* Human-in-the-Loop (HITL) Hero Card - Prominent when Awaiting Approval */}
+              {activeIncident && activeIncident.status === 'AWAITING_APPROVAL' && (
+                <HITLHeroCard
+                  incidentId={activeIncident.incident_id}
+                  rootCauseSummary={activeIncident.root_cause_summary}
+                  remediationPlan={activeIncident.remediation_plan}
+                  isResuming={isResuming}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                />
+              )}
+
+              {/* Post-Mortem & Audit Trail Card - Displayed when Resolved */}
+              {activeIncident && activeIncident.status === 'RESOLVED' && (
+                <PostMortemViewer
+                  report={postMortemReport}
+                  incidentId={activeIncident.incident_id}
+                />
+              )}
+
+              {/* Diagnostic Evidence Viewer (Logs, Infra, Runbooks) */}
+              {activeIncident && (
+                <EvidenceViewer
+                  agentResults={activeIncident.agent_results || {}}
+                  retrievedSources={activeIncident.retrieved_sources || []}
+                  incidentStatus={activeIncident.status}
+                />
+              )}
+            </div>
           )}
 
-          {/* Post-Mortem & Audit Trail Card - Displayed when Resolved */}
-          {activeIncident && activeIncident.status === 'RESOLVED' && (
-            <PostMortemViewer
-              report={postMortemReport}
-              incidentId={activeIncident.incident_id}
-            />
+          {/* TAB 2: Guia & Arquitetura (Dedicated Explainer) */}
+          {activeTab === 'guide' && (
+            <ArchitectureGuide onNavigateToConsole={() => setActiveTab('console')} />
           )}
 
-          {/* Diagnostic Evidence Viewer (Logs, Infra, Runbooks) */}
-          {activeIncident && (
-            <EvidenceViewer
-              agentResults={activeIncident.agent_results || {}}
-              retrievedSources={activeIncident.retrieved_sources || []}
-              incidentStatus={activeIncident.status}
-            />
+          {/* TAB 3: Histórico & Auditoria (Dedicated Ledger) */}
+          {activeTab === 'audit' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <IncidentHistory
+                incidents={incidentsHistory}
+                onSelectIncident={handleSelectIncident}
+                onRefresh={loadHistory}
+                isLoading={isHistoryLoading}
+              />
+            </div>
           )}
-
-          {/* Historical Incidents & Error Audit Ledger */}
-          <div id="incident-history-section">
-            <IncidentHistory
-              incidents={incidentsHistory}
-              onSelectIncident={handleSelectIncident}
-              onRefresh={loadHistory}
-              isLoading={isHistoryLoading}
-            />
-          </div>
         </main>
       </div>
     </div>
