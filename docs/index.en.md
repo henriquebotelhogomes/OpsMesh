@@ -26,9 +26,15 @@
 ## 🚀 Engineering Highlights
 
 * **FinOps Serverless ($0/month):** Designed for **Scale-to-Zero** on Google Cloud Run and Azure Container Apps. When idle, computing costs are exactly zero.
+* **Specialized Decision Models (Jev First):** Incident Supervisor routing and convergence powered by **Jev (`typesafe/jev-latest` on OpenRouter)** with sub-30ms latency, zero output cost, and native `Choice`/`Noul` primitives.
 * **Universal Tool Gateway:** Seamless dual-support for **Anthropic MCP** and **OpenAI Function Calling (DeepSeek / GPT)**.
+* **OpenRouter Gateway & Free Fleet:** Integrated access to high-capacity reasoning models (`:free`) unlocked by positive account balance (> $10) and full BYOK support (`X-OpenRouter-API-Key`).
+* **Datadog Pro APM & Distributed Tracing:** Native instrumentation (`ddtrace`) with distributed context propagation (`traceparent`, `x-datadog-trace-id`), connecting Chaos Lab faults to LangGraph nodes.
+* **Zero-Daemon Serverless Storage:** **LanceDB** for disk-based hybrid vector search ($0 infra) and **DuckDB + Parquet** for instant historical MTTR and incident analytics.
+* **Automated Red-Teaming Gate (Promptfoo):** Continuous pentesting in GitHub Actions CI auditing against prompt injection, HITL bypass, and credential leakage.
 * **Living Documentation with Scalar:** State-of-the-art interactive API reference at `/docs` or `/scalar`.
 * **Chaos Lab Ecosystem:** Independent companion application (`d:\ChaosLab`) with live fault injection and native Datadog APM tracing.
 * **Surgical Code Inspection via GitHub API:** Stateless remote retrieval of exact files/lines on the `main` branch pinpointed by Datadog's stack trace.
 * **Two-Tier Remediation:** Immediate runtime stabilization (< 5s) to restore SLO + Automated GitHub Pull Request for permanent root cause code fix.
+
 

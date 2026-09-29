@@ -143,3 +143,20 @@
 ## 📚 Fase 10: Documentação Viva MkDocs & Suporte Tri-língue
 - [x] Validação das páginas de documentação em `docs/` com suporte i18n (Português padrão, Inglês e Espanhol).
 - [x] Script de build e teste local da documentação (`python -m mkdocs build` validado sem erros).
+
+---
+
+## 🔮 Fase 11: Evolução do Harness — Decision Models (Jev), OpenRouter, Datadog APM, LanceDB/DuckDB & Promptfoo
+- [ ] **Pilar 1 — Decision Model Jev & OpenRouter Gateway:**
+  - [ ] Integração do modelo `typesafe/jev-latest` via OpenRouter no `IncidentSupervisorAgent` e nas arestas condicionais (`conditional_edges`) do LangGraph, com primitivas nativas (`Choice`, `Noul`) e latência sub-30ms ($0.00 output).
+  - [ ] Suporte nativo ao provedor OpenRouter e à frota de modelos gratuitos (`:free`, ex: `deepseek/deepseek-r1:free`, `meta-llama/llama-3.3-70b-instruct:free`) desbloqueada por saldo > $10 mantido, com suporte a BYOK (`X-OpenRouter-API-Key`).
+- [ ] **Pilar 2 — Observabilidade Unificada com Datadog Pro APM (`ddtrace`):**
+  - [ ] Instrumentação nativa do OpsMesh com `ddtrace`, registrando spans hierárquicos para os nós do LangGraph.
+  - [ ] Propagação de contexto distribuído (`traceparent`, `x-datadog-trace-id`) unificando o ciclo de vida do incidente do Chaos Lab ao OpsMesh.
+- [ ] **Pilar 3 — Armazenamento Vetorial Serverless & OLAP Zero-Daemon:**
+  - [ ] Suporte a LanceDB (armazenamento e busca vetorial serverless disk-based com Tantivy FTS, $0 de infra) para os runbooks operacionais.
+  - [ ] Persistência colunar de incidentes e relatórios post-mortem em `.parquet` para consultas analíticas instantâneas via DuckDB (MTTR, custos evitados, tendências).
+- [ ] **Pilar 4 — Red-Teaming Gate Automatizado com Promptfoo:**
+  - [ ] Configuração do `promptfooconfig.yaml` com suíte de pentest de agentes (jailbreaks, prompt injection, bypass do portão HITL e extração de PII).
+  - [ ] Integração do job de Red-Teaming no GitHub Actions CI como gate obrigatório de aprovação.
+

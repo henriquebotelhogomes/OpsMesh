@@ -122,6 +122,24 @@ O OpsMesh adota a separação estrita entre estancar o sangramento imediato e co
 1. **Nível 1 — Mitigação Operacional em Runtime (< 5s):** Chamada de API protegida (`POST /operations/mitigate`) no Chaos Lab ou comando Kubernetes para recuperar o SLA/SLO imediatamente após a autorização humana no portão HITL.
 2. **Nível 2 — Correção Definitiva via GitOps (Assíncrono):** Abertura automatizada de um Pull Request formal no GitHub do Chaos Lab com o patch do código-fonte, suíte de testes recomendada e link do relatório post-mortem, preservando o ciclo seguro de Code Review e CI/CD.
 
+### 3.9 Decision Models Especializados (Jev First) & OpenRouter Gateway
+Para mitigar a latência e o consumo excessivo de tokens em etapas que demandam apenas raciocínio lógico determinístico:
+1. **Jev (`typesafe/jev-latest` via OpenRouter):** Modelo "System One" ultrarrápido (<30ms de latência, $0.042/1M input, $0.00 de output) acionado no `IncidentSupervisorAgent` e nas arestas condicionais (`conditional_edges`) do LangGraph.
+2. **Primitivas Estruturadas:** Emprego de `Choice` para delegação cirúrgica de especialistas e `Noul` para determinação calibrada de convergência (`is_investigation_complete`), reservando LLMs generativos apenas para síntese explicativa.
+3. **OpenRouter Provider & Frota `:free`:** Suporte de primeira classe ao OpenRouter com acesso às cotas ampliadas para modelos `:free` (como `meta-llama/llama-3.3-70b-instruct:free` e `deepseek/deepseek-r1:free`) viabilizadas pelo saldo mantido > $10.
+
+### 3.10 Observabilidade Unificada & Tracing Distribuído Datadog Pro APM (`ddtrace`)
+1. **Tracing Ponta a Ponta:** Instrumentação nativa do OpsMesh via `dd-trace-py`, registrando spans hierárquicos para cada nó do LangGraph (`supervisor_node`, `diagnostics_node`, `remediation_node`).
+2. **Propagação de Contexto Distribuído:** Extração e injeção de cabeçalhos de rastreamento (`traceparent`, `x-datadog-trace-id`), unificando o ciclo de vida: anomalia no Chaos Lab ➔ alerta Datadog ➔ diagnóstico no OpsMesh ➔ mitigação em runtime.
+
+### 3.11 Armazenamento Vetorial Serverless & OLAP Zero-Daemon (LanceDB + DuckDB / Parquet)
+1. **LanceDB Serverless:** Motor vetorial disk-based sem necessidade de containers pesados em background, provendo busca híbrida (vetorial densa + busca textual Tantivy) para os manuais de crise (runbooks SOPs).
+2. **DuckDB + Parquet para Auditoria e Analytics:** Persistência analítica em arquivos colunares `.parquet` de todos os incidentes resolvidos, permitindo consultas SQL ultrarrápidas com DuckDB para métricas de MTTR histórico, custos evitados e frequência de falhas por serviço.
+
+### 3.12 Red-Teaming Gate Automatizado (Promptfoo no CI/CD)
+1. **Pentest Automatizado de Agentes:** Configuração de suíte de testes adversários via `promptfooconfig.yaml` executada no GitHub Actions CI.
+2. **Guardrails Invioláveis Auditados:** Verificação determinística contra injeções de prompt no payload de logs/alertas, tentativas maliciosas de contornar o portão HITL e vazamento acidental de chaves ou PII nos relatórios pós-incidente.
+
 ---
 
 ## 🧪 4. Chaos Studio: Matriz Técnica dos 4 Cenários de Crise

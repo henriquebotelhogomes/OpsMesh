@@ -64,3 +64,22 @@ A remediação formulada pelo `RemediationEngineerAgent` e aprovada pelo engenhe
 1. **Nível 1 (Runtime Mitigation):** Chamada de API operacional protegida no Chaos Lab (`POST /operations/mitigate`) em menos de 5 segundos para estancar a crise e zerar a taxa de erro no Datadog.
 2. **Nível 2 (GitOps Pull Request):** Abertura automática de um Pull Request no GitHub do Chaos Lab com o patch definitivo, justificativa técnica e links para revisão e merge da equipe.
 
+### 6. Decision Models Especializados (Jev First) & OpenRouter Gateway
+Para tarefas que exigem estritamente classificação, roteamento e determinação de parada sem geração de texto longo para o usuário:
+- **Jev (`typesafe/jev-latest` via OpenRouter):** Modelo "System One" ultrarrápido com latência sub-30ms e custo de output \$0.00.
+- **Primitivas Nativas:** `Choice` (seleção categórica de especialista para o próximo passo) e `Noul` (decisão booleana de convergência da causa raiz `is_investigation_complete` com probabilidade calibrada de 0.0 a 1.0).
+- **OpenRouter Provider & Frota `:free`:** Suporte nativo ao OpenRouter, com acesso à frota de modelos de raciocínio de alta capacidade desbloqueados por saldo mantido > \$10 (`meta-llama/llama-3.3-70b-instruct:free`, `deepseek/deepseek-r1:free`).
+
+### 7. Observabilidade Unificada & Tracing Distribuído Datadog Pro APM (`ddtrace`)
+- **Tracing de Nós LangGraph:** O OpsMesh é instrumentado com `dd-trace-py`, registrando spans hierárquicos para o Supervisor, Analistas e Remediação.
+- **Propagação de Contexto Distribuído:** Propagação de cabeçalhos W3C (`traceparent`) e Datadog (`x-datadog-trace-id`), garantindo visão unificada: injeção no Chaos Lab ➔ APM Datadog ➔ alerta webhook ➔ investigação OpsMesh ➔ mitigação em runtime.
+
+### 8. Armazenamento Vetorial Serverless & OLAP Zero-Daemon (LanceDB + DuckDB / Parquet)
+- **LanceDB Serverless:** Motor vetorial disk-based sem containers pesados em background, provendo busca híbrida (vetorial densa + busca textual Tantivy) para os manuais de crise (runbooks SOPs).
+- **DuckDB + Parquet para Auditoria e Analytics:** Persistência analítica em arquivos colunares `.parquet` de todos os incidentes resolvidos, permitindo consultas SQL ultrarrápidas com DuckDB para métricas de MTTR histórico, custos evitados e frequência de falhas por serviço.
+
+### 9. Red-Teaming Gate Automatizado (Promptfoo no CI/CD)
+- **Pentest Automatizado de Agentes:** Configuração de suíte de testes adversários via `promptfooconfig.yaml` executada no GitHub Actions CI.
+- **Guardrails Invioláveis Auditados:** Verificação determinística contra injeções de prompt no payload de logs/alertas, tentativas maliciosas de contornar o portão HITL e vazamento acidental de chaves ou PII nos relatórios pós-incidente.
+
+

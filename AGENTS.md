@@ -114,6 +114,10 @@ class IncidentState(TypedDict):
 * **Papel:** Receber o alerta higienizado, planejar a investigação cirúrgica, acionar especialistas e consolidar o veredito sem exceder limites de turnos.
 * **Autonomia:** Alta (Orquestração e Roteamento). **Sem acesso a ferramentas de mutação**.
 * **Guardrails de Execução:** `max_iterations = 4`. Se a investigação atingir 4 turnos sem conclusão, força a convergência para remediação ou escalada humana imediata.
+* **Modo Decision Model Especializado (Jev First):**
+  * Para a tomada de decisão de roteamento e avaliação booleana de convergência (`is_investigation_complete`), o Supervisor prioriza o modelo **Jev (`typesafe/jev-latest` no OpenRouter)**.
+  * Utiliza as primitivas `Choice` (seleção categórica entre `["LogTraceAnalystAgent", "DatabaseInfraAgent", "RunbookKnowledgeAgent"]`) e `Noul` (convergência booleana calibrada de 0.0 a 1.0).
+  * **Benefício FinOps & Performance:** Latência de decisão sub-30ms e custo de output \$0.00, reservando LLMs generativos (DeepSeek V4.1 Flash, Gemini 3.8 Flash, OpenRouter `:free`) para a síntese de hipótese.
 * **Contrato de Saída Estruturada (`SupervisorDecision`):**
 
 ```python

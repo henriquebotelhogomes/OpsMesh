@@ -287,8 +287,13 @@ graph TD
 
 | Pilar | Detalhes Técnicos |
 | :--- | :--- |
+| **Decision Models Especializados** | Roteamento e convergência do Supervisor via **Jev (`typesafe/jev-latest` no OpenRouter)** com latência sub-30ms, $0.00 de custo de saída e primitivas nativas (`Choice`, `Noul`). |
 | **Universal Tool Gateway** | Suporta simultaneamente **Anthropic MCP** (stdio/SSE) e **OpenAI Function Calling** (DeepSeek V3/R1, GPT-4o, Llama 3 via Ollama/vLLM). |
+| **OpenRouter & Frota Free** | Gateway integrado com acesso a modelos de raciocínio gratuitos (`:free`) com cotas ampliadas por saldo mantido > $10 e suporte BYOK (`X-OpenRouter-API-Key`). |
+| **Datadog Pro APM & Tracing** | Tracing distribuído ponta a ponta (`ddtrace`) com propagação de contexto (`traceparent`), correlacionando falhas do Chaos Lab e nós do LangGraph no OpsMesh. |
 | **FinOps & Scale-to-Zero** | Elegível para **Google Cloud Run** e **Azure Container Apps** com `min_instances = 0` (**$0/mês ocioso**). |
+| **Armazenamento Zero-Daemon** | Suporte a **LanceDB** (vetores serverless em disco, $0 de infra) e **DuckDB + Parquet** para auditoria e queries analíticas OLAP de MTTR histórico. |
+| **Red-Teaming Gate (Promptfoo)** | Pentest automatizado no CI/CD contra jailbreak, injeção de prompt e tentativa de desvio do portão HITL antes do deploy. |
 | **Blindagem Anti-DoW** | Disjuntor diário de gastos ($1.00/dia), Rate Limiting por IP, padrão **BYOK** (`X-OpenAI-API-Key`, `X-DeepSeek-API-Key`) e Modo Replay Zero-Token. |
 | **Observabilidade de LLMs** | Tracing nativo do LangGraph com **LangSmith** e suporte a **Langfuse** (self-hosted). |
 | **Quality Gate com Ragas** | Avaliação contínua no CI/CD com LLM-as-a-Judge: *Faithfulness $\ge 0.85$* e *Answer Relevancy $\ge 0.80$*. |
