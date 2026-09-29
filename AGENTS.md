@@ -14,24 +14,33 @@ A equipe do OpsMesh opera em uma topologia **Supervisor-Workers** hierárquica e
 
 ```mermaid
 graph TD
-    Alert["Alerta Ingerido + PII Sanitized"] --> Supervisor["IncidentSupervisorAgent<br/>Orquestrador e Comandante"]
+    Alert["Alerta Ingerido (Datadog/APM) + PII Sanitized"] --> Supervisor["IncidentSupervisorAgent<br/>Orquestrador e Comandante"]
     
     subgraph Specialists [Agentes Especialistas em Paralelo / Sequencial]
-        Supervisor -->|Delegar Diagnóstico| LogAgent["LogTraceAnalystAgent<br/>Logs, Traces & LogHub"]
+        Supervisor -->|Delegar Logs & Código| LogAgent["LogTraceAnalystAgent<br/>Logs, Traces & GitHub API"]
         Supervisor -->|Delegar Infraestrutura| InfraAgent["DatabaseInfraAgent<br/>Postgres, Redis, K8s"]
         Supervisor -->|Consultar Runbooks| RAGAgent["RunbookKnowledgeAgent<br/>RAG Híbrido Qdrant+BM25"]
+        
+        LogAgent -.->|GET /contents/file?ref=main| GitRepo[("GitHub REST API<br/>Branch main do Chaos Lab")]
     end
     
     LogAgent --> Consolidation["Nó de Consolidação de Evidências"]
     InfraAgent --> Consolidation
     RAGAgent --> Consolidation
     
-    Consolidation --> RemediationAgent["RemediationEngineerAgent<br/>Plano de Ação & Diff"]
+    Consolidation --> RemediationAgent["RemediationEngineerAgent<br/>Plano em 2 Níveis: Runtime + GitOps"]
     RemediationAgent --> HITL_Gate{"HITL Gate: Ação Crítica?"}
     
-    HITL_Gate -->|interrupt_before| HumanApproval["Aprovação Humana Obrigatória<br/>SRE On-Call"]
+    HITL_Gate -->|interrupt_before| HumanApproval["Aprovação Humana Obrigatória<br/>SRE On-Call no Console"]
     HumanApproval --> ResumeExecution["Execução Controlada<br/>POST /api/v1/incidents/:id/resume"]
-    ResumeExecution --> AuditAgent["AuditPostMortemAgent<br/>Timeline, Auditoria e Relatório PDF"]
+    
+    subgraph TwoTierExecution [Execução da Remediação em 2 Níveis]
+        ResumeExecution --> Tier1["Nível 1: Mitigação Runtime (< 5s)<br/>POST /operations/mitigate no Chaos Lab"]
+        ResumeExecution --> Tier2["Nível 2: GitOps Pull Request<br/>Abertura Automática de PR no GitHub"]
+    end
+    
+    Tier1 --> AuditAgent["AuditPostMortemAgent<br/>Timeline, Hash SHA-256 e PDF"]
+    Tier2 --> AuditAgent
 ```
 
 ---
@@ -139,12 +148,13 @@ DIRETRIZES FUNDAMENTAIS:
 
 ---
 
-### 3.2 LogTraceAnalystAgent (Especialista em Logs e Traces)
-* **Papel:** Investigar logs estruturados e não-estruturados, clusters de stack traces e datasets do LogHub via servidores MCP e tools OpenAI.
+### 3.2 LogTraceAnalystAgent (Especialista em Logs, Traces e Código Remoto)
+* **Papel:** Investigar logs estruturados e não-estruturados, clusters de stack traces (Datadog/Sentry/LogHub) e inspecionar cirurgicamente o código-fonte na branch principal do repositório remoto via GitHub API.
 * **Guardrail de Truncamento:** Ferramentas de log truncam o retorno para no máximo 2.000 caracteres por chamada para evitar explosão de contexto e custos.
 * **Ferramentas Autorizadas:**
   * `query_logs(filter_query: str, time_range: str, limit: int = 50)` [MCP / OpenAI Tool]
   * `analyze_trace(trace_id: str)` [MCP / OpenAI Tool]
+  * `inspect_github_source(repo: str, file_path: str, start_line: int, end_line: int, ref: str = "main")` [GitHub REST API / Tool]
 * **Contrato de Saída (`LogAnalysisResult`):**
 
 ```python
@@ -160,6 +170,8 @@ class LogAnalysisResult(BaseModel):
     probable_origin_service: str
     error_spike_percentage: float
     summary: str
+    source_file_reference: str | None = Field(default=None, description="Ex: 'services/checkout.py:142'")
+    inspected_code_snippet: str | None = Field(default=None, description="Trecho de código recuperado da branch main no GitHub.")
 ```
 
 ---
@@ -204,12 +216,12 @@ class RunbookRetrievalResult(BaseModel):
 
 ---
 
-### 3.5 RemediationEngineerAgent (Engenheiro de Remediação & Patches)
-* **Papel:** Formular o plano de mitigação seguro, criar os diffs de configuração/scripts de correção e definir a estratégia de rollback caso a ação falhe.
+### 3.5 RemediationEngineerAgent (Engenheiro de Remediação em 2 Níveis & Patches)
+* **Papel:** Formular a estratégia de remediação dividida no padrão ouro corporativo: **Nível 1 (Mitigação Operacional Imediata em Runtime)** e **Nível 2 (Pull Request Definitivo no GitHub)**.
 * **Contrato de Saída (`RemediationPlan`):**
 
 ```python
-class RemediationPlan(BaseModel):
+class RuntimeMitigation(BaseModel):
     action_type: Literal[
         "DATABASE_CONNECTION_SCALE",
         "DATABASE_TERMINATE_BACKENDS",
@@ -219,12 +231,26 @@ class RemediationPlan(BaseModel):
         "CIRCUIT_BREAKER_ACTIVATE",
         "SCHEMA_HOTFIX"
     ]
+    target_endpoint: str | None = Field(default=None, description="Rota operacional do Chaos Lab (ex: 'POST /operations/mitigate').")
+    proposed_commands: list[str] = Field(description="Comandos exatos a serem executados em runtime.")
+    rollback_plan: str = Field(description="Procedimento exato para desfazer a ação caso o problema se agrave.")
+
+class GitOpsPullRequest(BaseModel):
+    target_repo: str = Field(description="Repositório alvo no GitHub (ex: 'henriquebotelhogomes/chaos-lab').")
+    target_branch: str = Field(default="main", description="Branch de destino da alteração.")
+    pr_branch_name: str = Field(description="Nova branch criada para o PR (ex: 'fix/opsmesh-conn-leak-8f3a').")
+    pr_title: str = Field(description="Título formal do Pull Request.")
+    pr_body: str = Field(description="Corpo do PR com diagnóstico da causa raiz, links do Datadog e justificativa técnica.")
+    patch_diff: str = Field(description="Diff unificado (git patch) a ser aplicado no repositório.")
+
+class RemediationPlan(BaseModel):
     is_critical_action: bool = Field(default=True, description="True se exigir portão HITL obrigatório antes da execução.")
     risk_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
-    proposed_commands: list[str] = Field(description="Comandos exatos a serem executados.")
-    patch_diff: str | None = Field(default=None, description="Diff unificado (git patch ou yaml diff) da alteração proposta.")
-    rollback_plan: str = Field(description="Procedimento exato para desfazer a ação caso o problema se agrave.")
     justification: str = Field(description="Racional técnico de por que esta ação resolve a causa raiz.")
+    
+    # Remediação em Dois Níveis
+    tier_1_runtime: RuntimeMitigation = Field(description="Nível 1: Mitigação rápida para recuperar o SLA em < 5 segundos.")
+    tier_2_gitops: GitOpsPullRequest | None = Field(default=None, description="Nível 2: Correção definitiva no código-fonte via Pull Request.")
 ```
 
 ---

@@ -28,3 +28,6 @@
 * **FinOps Serverless ($0/mes ocioso):** Diseñado para **Scale-to-Zero** en Google Cloud Run y Azure Container Apps. Sin alertas activas, el costo de cómputo es estrictamente cero.
 * **Universal Tool Gateway:** Compatibilidad nativa con herramientas **Anthropic MCP** y **OpenAI Function Calling (DeepSeek / GPT)**.
 * **Documentación Viva con Scalar:** Explorador interactivo moderno para probar los endpoints de la API REST en tiempo real.
+* **Ecosistema Chaos Lab:** Aplicación compañera independiente (`d:\ChaosLab`) con inyección de fallos en tiempo real e instrumentación nativa con Datadog APM.
+* **Inspección Quirúrgica vía GitHub API:** Lectura remota y stateless del archivo y línea exactos en la rama `main` indicados por el stack trace de Datadog.
+* **Remediación en Dos Niveles:** Mitigación inmediata en runtime (< 5s) para recuperar el SLO + Apertura automática de Pull Request documentado en GitHub para la corrección definitiva de la causa raíz.

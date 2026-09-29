@@ -52,3 +52,15 @@ Utilizamos o `AsyncPostgresSaver` conectado a um PostgreSQL Serverless (Neon ou 
 
 ### 3. Blindagem FinOps & BYOK
 O sistema protege o mantenedor contra esgotamento de tokens via rate limiting por IP, disjuntor diário de custos ($1.00/dia), modo de demonstração Replay com custo zero e suporte a cabeçalhos BYOK (`X-OpenAI-API-Key`, `X-DeepSeek-API-Key`).
+
+### 4. Ecossistema Chaos Lab & Inspeção Cirúrgica via GitHub API
+O OpsMesh opera de forma totalmente desacoplada contra a aplicação alvo **Chaos Lab** (`d:\ChaosLab`). Quando um alerta do Datadog indica uma exception (ex: `services/checkout.py:142`):
+- O agente não clona o repositório em disco; ele faz uma requisição remota stateless à **GitHub REST API** (`GET /repos/{owner}/{repo}/contents/{path}?ref=main`).
+- Recupera a janela de contexto exata do código ativo em produção.
+- Correlaciona o erro do APM com a linha de código real e o runbook operacional correspondente.
+
+### 5. Padrão Ouro de Remediação em Dois Níveis (Two-Tier Remediation)
+A remediação formulada pelo `RemediationEngineerAgent` e aprovada pelo engenheiro no portão HITL executa em dois tempos:
+1. **Nível 1 (Runtime Mitigation):** Chamada de API operacional protegida no Chaos Lab (`POST /operations/mitigate`) em menos de 5 segundos para estancar a crise e zerar a taxa de erro no Datadog.
+2. **Nível 2 (GitOps Pull Request):** Abertura automática de um Pull Request no GitHub do Chaos Lab com o patch definitivo, justificativa técnica e links para revisão e merge da equipe.
+

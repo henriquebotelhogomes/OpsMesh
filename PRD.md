@@ -64,6 +64,22 @@ Por ser um projeto de **código aberto disponibilizado online na nuvem**, o OpsM
   2. Se a cota pública diária estiver ativa, o sistema pode rodar via **Modo Replay Zero-Token** (usando traces gravados do LogHub, sem chamadas externas pagas).
   3. Se o visitante desejar executar prompts vivos e personalizados, ele pode fornecer sua própria chave via header `X-OpenAI-API-Key` ou `X-DeepSeek-API-Key` (**BYOK**), com custo zero para os mantenedores.
 
+### UC-04: Inspeção Cirúrgica de Código na Branch Principal via GitHub REST API
+* **Ator:** `LogTraceAnalystAgent` & Datadog Webhook.
+* **Fluxo:**
+  1. O alerta do Datadog inclui o stack trace do erro indicando o arquivo e linha (ex: `services/checkout.py:142`).
+  2. O agente consulta remotamente a GitHub REST API (`GET /repos/{owner}/{repo}/contents/{path}?ref=main`) sem clonar o repositório em disco.
+  3. Extrai apenas a janela de contexto relevante em torno da falha (ex: linhas 120 a 160) da branch `main` ativa em produção.
+  4. Encaminha o trecho com a linha exata para o agente de remediação formular o patch.
+
+### UC-05: Remediação em Dois Níveis (Two-Tier Remediation)
+* **Ator:** `RemediationEngineerAgent` & SRE On-Call.
+* **Fluxo:**
+  1. O agente formula a remediação dividida em duas camadas: **Nível 1 (Runtime Mitigation)** e **Nível 2 (GitOps Pull Request)**.
+  2. O SRE On-Call aprova o plano no portão HITL.
+  3. **Nível 1:** O OpsMesh dispara a ação operacional imediata via endpoint seguro do Chaos Lab (`POST /operations/mitigate`) ou Kubernetes em menos de 5 segundos, fazendo o gráfico do Datadog retornar para 0% de erro.
+  4. **Nível 2:** O OpsMesh abre de forma assíncrona um Pull Request formal no GitHub do Chaos Lab com o patch do código-fonte, suíte de testes e referências cruzadas para revisão humana da equipe.
+
 ---
 
 ## 4. Requisitos Funcionais (FR)
@@ -84,6 +100,9 @@ Por ser um projeto de **código aberto disponibilizado online na nuvem**, o OpsM
 * **FR-12 (Sandbox Replay Zero-Token):** Capacidade de executar os 4 cenários da demo pública a partir de execuções pré-gravadas em cache, garantindo zero chamadas a APIs pagas para visitantes comuns.
 * **FR-13 (Observabilidade de LLMs com LangSmith & Langfuse):** Tracing ponta a ponta dos grafos LangGraph, detalhando latência nó a nó, contagem de tokens de entrada/saída e cálculo de custo financeiro acumulado por incidente com suporte a exportação para LangSmith ou Langfuse.
 * **FR-14 (Avaliação Contínua de Assertividade com Ragas):** Pipeline automatizado de testes de regressão no CI/CD com LLM-as-a-Judge medindo *Faithfulness* ($\ge 0.85$), *Answer Relevancy* ($\ge 0.80$) e *Context Precision* dos planos gerados pelos agentes contra o gabarito dos 4 cenários canônicos.
+* **FR-15 (Inspeção Cirúrgica Stateless via Git API):** Capacidade de recuperar trechos de arquivos de código-fonte diretamente da branch `main` de repositórios remotos no GitHub ou Azure Repos com base nas coordenadas de arquivos fornecidas pelo APM/Sentry.
+* **FR-16 (Remediação em Dois Níveis - Two-Tier Remediation):** Geração e desacoplamento formal entre ações operacionais imediatas em runtime (< 5s) e abertura automática de Pull Requests documentados no GitHub para aprovação e merge assíncrono.
+* **FR-17 (Ecossistema de Chaos Lab Desacoplado):** Integração ponta a ponta com a aplicação alvo `Chaos Lab` (`d:\ChaosLab`), demonstrando a dinâmica de injeção de falhas, captura de telemetria no Datadog e remediação automática.
 
 ---
 

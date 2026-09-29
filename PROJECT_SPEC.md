@@ -112,6 +112,16 @@ Para viabilizar a hospedagem pública open source sem riscos financeiros:
   * **Answer Relevancy ($\ge 0.80$):** Valida se o plano de remediação atende com precisão cirúrgica ao alerta emitido.
   * **Context Precision & Recall:** Avalia se o RAG de runbooks recuperou o SOP operacional correto para o incidente em curso.
 
+### 3.7 Ecossistema Chaos Lab (`d:\ChaosLab`) & Inspeção Remota via GitHub API
+Para demonstrar a eficácia e o desacoplamento do OpsMesh em um ecossistema real de microsserviços distribuídos:
+1. **Chaos Lab (Target Application / SUT):** Aplicação independente de checkout e-commerce desenvolvida em Python (FastAPI + Pydantic v2), instrumentada nativamente com `dd-trace-py` do Datadog e interface com botões de injeção de falhas (vazamento de conexões, timeouts 504, memory leaks).
+2. **Inspeção Cirúrgica Stateless via GitHub API:** A partir do stack trace enviado pelo Datadog (ex: `services/checkout.py:142`), o OpsMesh não clona o repositório nem lê todos os arquivos cegamente. Ele consulta a API do GitHub (`GET /repos/{owner}/{repo}/contents/{path}?ref=main`) para extrair apenas as linhas relevantes do código ativo em produção, poupando tokens e eliminando alucinações.
+
+### 3.8 Padrão Ouro de Remediação em Dois Níveis (Two-Tier Remediation)
+O OpsMesh adota a separação estrita entre estancar o sangramento imediato e corrigir a causa raiz:
+1. **Nível 1 — Mitigação Operacional em Runtime (< 5s):** Chamada de API protegida (`POST /operations/mitigate`) no Chaos Lab ou comando Kubernetes para recuperar o SLA/SLO imediatamente após a autorização humana no portão HITL.
+2. **Nível 2 — Correção Definitiva via GitOps (Assíncrono):** Abertura automatizada de um Pull Request formal no GitHub do Chaos Lab com o patch do código-fonte, suíte de testes recomendada e link do relatório post-mortem, preservando o ciclo seguro de Code Review e CI/CD.
+
 ---
 
 ## 🧪 4. Chaos Studio: Matriz Técnica dos 4 Cenários de Crise

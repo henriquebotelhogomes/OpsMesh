@@ -142,6 +142,102 @@ Após a mitigação, o sistema gera o Post-Mortem oficial com hash SHA-256 e dow
 
 ---
 
+## 🧪 Ecossistema Chaos Lab: O Laboratório Vivo de Engenharia do Caos
+
+Para comprovar a robustez e o desacoplamento do OpsMesh em cenários reais de produção corporativa, o ecossistema inclui um projeto companheiro independente: o **Chaos Lab** (`d:\ChaosLab` / repositório dedicado).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor SRE as SRE / Engenheiro de Plantão
+    participant CL as 🧪 Chaos Lab (API E-Commerce)
+    participant DD as 📊 Datadog APM & Tracing
+    participant OM as 🛡️ OpsMesh (Supervisor + Workers)
+    participant GH as 🐙 GitHub REST API (Branch main)
+
+    SRE->>CL: Dispara Injeção de Falha (ex: Pool Exhaustion, 504 Timeout)
+    CL->>CL: Falha ocorre em runtime (ex: /checkout trava conexões)
+    CL-->>DD: Envia traces distribuídos, métricas de saturação e stack traces (ddtrace)
+    DD->>DD: Monitor de Anomalia dispara (Error Rate > 5%, p99 > 2s)
+    DD->>OM: Webhook de Incidente com stack trace e metadados
+    
+    rect rgb(24, 30, 42)
+        Note over OM,GH: Diagnóstico Cirúrgico & Inspeção de Código
+        OM->>GH: Consulta código-fonte exato do arquivo/linha na branch 'main'
+        OM->>OM: Recupera Runbooks de Emergência (RAG Híbrido: Qdrant + BM25)
+        OM->>OM: Agentes consolidam Causa Raiz + Plano de Remediação em 2 Níveis
+    end
+
+    OM->>SRE: Apresenta diagnóstico, diff de código e pausa no Portão HITL
+    SRE->>OM: Assina e aprova via interface do Console SRE
+    
+    par Nível 1: Mitigação Imediata em Runtime (< 5s)
+        OM->>CL: Dispara endpoint de estabilização operacional (POST /operations/mitigate)
+        CL-->>DD: Erros cessam, gráfico do Datadog volta para verde (0% de erro)
+    and Nível 2: Correção Definitiva via GitOps (Assíncrono)
+        OM->>GH: Abre Pull Request formal documentado com o patch no repositório do Chaos Lab
+    end
+```
+
+### O que é o Chaos Lab?
+* **Stack:** Python 3.12 + FastAPI + Pydantic v2 + instrumentação nativa oficial `dd-trace-py` do Datadog.
+* **Painel Interativo de Caos:** Interface visual com gatilhos de falhas controladas:
+  * 🔴 **PostgreSQL Connection Pool Leak:** Queries sem fechamento determinístico de conexões.
+  * 🔴 **Cascade 504 Gateway Timeout:** Latência forçada de 15s em chamadas upstream de estoque.
+  * 🔴 **Memory Leak (OOMKilled):** Alocação progressiva de memória RAM em tensores sem coleta de GC.
+  * 🔴 **Payment Gateway Flapping:** Injeção aleatória de HTTP 500 no adquirente de cartões.
+  * 🎲 **Chaos Roulette:** Sorteio estocástico de falhas a cada $N$ minutos para auditoria contínua.
+
+---
+
+## 🔬 Inspeção Cirúrgica de Código-Fonte via GitHub REST API
+
+Ao contrário de abordagens simplistas que jogam todo o repositório cegamente em um prompt de LLM (estourando orçamentos de contexto e gerando alucinações), o OpsMesh adota uma estratégia **stateless e cirúrgica**:
+
+1. **Extração de Coordenadas do Datadog:** O Datadog entrega o stack trace detalhado:
+   ```text
+   File "/app/services/checkout.py", line 142, in process_order
+     conn = db_pool.getconn()
+   psycopg2.OperationalError: FATAL: remaining connection slots are reserved
+   ```
+2. **Consulta Remota à Branch Principal:** O `LogTraceAnalystAgent` do OpsMesh consulta a GitHub REST API (`GET /repos/{owner}/{repo}/contents/{path}?ref=main`) para inspecionar exatamente o contexto das linhas 120 a 160 do arquivo ativo em produção.
+3. **Triangulação de Evidências:** A LLM cruza:
+   * **O Sintoma:** Telemetria, APM e stack trace do Datadog.
+   * **A Causa no Código:** As linhas exatas do arquivo do Chaos Lab na branch `main`.
+   * **O Procedimento:** O manual corporativo (Runbook Markdown) recuperado via RAG Híbrido.
+
+---
+
+## 🛡️ O Padrão Ouro de Remediação em Dois Níveis (Two-Tier Remediation)
+
+Em engenharia de confiabilidade de alta maturidade (Google SRE, Netflix, PagerDuty), existe o princípio inviolável de **separar a Mitigação da Crise da Correção Definitiva do Código**:
+
+| Nível | Objetivo | Velocidade | Mecanismo de Execução | Governança |
+| :--- | :--- | :--- | :--- | :--- |
+| **Nível 1: Mitigação Operacional (Runtime)** | Estancar o sangramento e recuperar o SLA/SLO imediatamente. | < 5 segundos | Chamada de API operacional protegida no Chaos Lab / Kubernetes (ex: reiniciar conexões, ligar circuit breaker). | Portão HITL (Aprovação humana expressa). |
+| **Nível 2: Correção Definitiva (GitOps)** | Eliminar a causa raiz no código-fonte permanentemente. | Assíncrono | Abertura automática de **Pull Request formal no GitHub** com o patch de código, testes, justificativa técnica e link do post-mortem. | Revisão humana por pares (*Code Review*) e esteira de CI/CD. |
+
+> [!CAUTION]
+> **Anti-Pattern Evitado:** O OpsMesh **nunca** comita alterações de código diretamente na branch `main` de produção sem validação de testes. Todo patch permanente é submetido como Pull Request para manter a integridade da esteira de CI/CD da empresa.
+
+---
+
+## 🏆 Posicionamento de Mercado & Análise Competitiva
+
+O OpsMesh atua na lacuna crítica entre as ferramentas de diagnóstico passivo e os gerenciadores de alertas humanos:
+
+| Capacidade | Datadog Bits AI | PagerDuty Advance | Devin / Sweep | **OpsMesh** |
+| :--- | :---: | :---: | :---: | :---: |
+| **Ingestão de Alertas Reais de APM (Datadog/Sentry)** | ✅ Nativo | ✅ Webhook | ❌ Não faz | ✅ **Universal Webhook** |
+| **Orquestração Multi-Agente (LangGraph)** | ❌ Monolítico | ❌ Roteamento básico | ❌ Agente único | ✅ **Supervisor + Workers** |
+| **Inspeção Cirúrgica de Código (GitHub API)** | ❌ Não lê código | ❌ Não lê código | ✅ Lê o repositório | ✅ **Stateless via Stack Trace** |
+| **Mitigação em Runtime Nível 1 (< 5s)** | ❌ Não executa | ⚠️ Via Rundeck externo | ❌ Não executa | ✅ **Nativo pós-HITL** |
+| **Criação de Pull Request Nível 2 (GitOps)** | ❌ Não faz | ❌ Não faz | ✅ Abre PR | ✅ **Nativo pós-HITL** |
+| **Portão HITL Não-Repudiável (Hash SHA-256)** | ❌ Sem auditoria | ⚠️ Apenas log de chat | ❌ Sem HITL | ✅ **Hash SHA-256 em PDF** |
+| **Independência de Provedor (Agnóstico)** | ❌ Walled Garden | ⚠️ Parcial | ❌ Não aplicável | ✅ **Universal Tool Gateway** |
+
+---
+
 ## 🏛️ Topologia Arquitetural
 
 ```mermaid
