@@ -22,17 +22,23 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
     <div className="border-b border-brand-bronze/25 bg-sand-terminal/80 backdrop-blur-md sticky top-16 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Navigation Tabs */}
-        <nav className="flex space-x-1 sm:space-x-3 overflow-x-auto py-1 scrollbar-none" aria-label="Tabs">
+        <nav className="flex items-center space-x-1 sm:space-x-2.5 overflow-x-auto py-1.5 scrollbar-none" aria-label="Tabs">
           {/* Tab 1: Console / Incident Command */}
           <button
             onClick={() => onChangeTab('console')}
-            className={`flex items-center space-x-2 py-2.5 px-3 sm:px-4 rounded-t-lg text-xs sm:text-sm font-mono font-medium transition-all relative ${
+            className={`flex items-center space-x-2 py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-mono transition-all duration-150 relative ${
               activeTab === 'console'
-                ? 'bg-sand-surface text-brand-gold border-t-2 border-brand-gold shadow-sm'
-                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/40'
+                ? 'bg-gradient-to-b from-[#3E342B] to-[#2B231C] text-white font-bold border border-brand-gold/70 shadow-md shadow-black/50 ring-1 ring-brand-gold/40'
+                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/60 border border-transparent font-medium'
             }`}
           >
-            <Activity className="w-4 h-4 flex-shrink-0" />
+            <Activity
+              className={`w-4 h-4 flex-shrink-0 ${
+                activeTab === 'console'
+                  ? 'text-brand-gold drop-shadow-[0_0_8px_rgba(206,176,126,0.6)]'
+                  : 'text-sand-muted'
+              }`}
+            />
             <span>Central de Incidentes</span>
             {isAwaitingApproval && (
               <span className="flex h-2 w-2 relative flex-shrink-0">
@@ -51,15 +57,27 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
           {/* Tab 2: Guide & Architecture */}
           <button
             onClick={() => onChangeTab('guide')}
-            className={`flex items-center space-x-2 py-2.5 px-3 sm:px-4 rounded-t-lg text-xs sm:text-sm font-mono font-medium transition-all relative ${
+            className={`flex items-center space-x-2 py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-mono transition-all duration-150 relative ${
               activeTab === 'guide'
-                ? 'bg-sand-surface text-brand-gold border-t-2 border-brand-gold shadow-sm'
-                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/40'
+                ? 'bg-gradient-to-b from-[#3E342B] to-[#2B231C] text-white font-bold border border-brand-gold/70 shadow-md shadow-black/50 ring-1 ring-brand-gold/40'
+                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/60 border border-transparent font-medium'
             }`}
           >
-            <BookOpen className="w-4 h-4 flex-shrink-0" />
+            <BookOpen
+              className={`w-4 h-4 flex-shrink-0 ${
+                activeTab === 'guide'
+                  ? 'text-brand-gold drop-shadow-[0_0_8px_rgba(206,176,126,0.6)]'
+                  : 'text-sand-muted'
+              }`}
+            />
             <span>Guia & Arquitetura</span>
-            <span className="hidden sm:inline-block px-1.5 py-0.2 rounded text-[10px] bg-brand-gold/15 text-brand-gold border border-brand-gold/30">
+            <span
+              className={`hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono transition-colors ${
+                activeTab === 'guide'
+                  ? 'bg-brand-gold text-sand-terminal font-bold shadow-xs'
+                  : 'bg-brand-gold/15 text-brand-gold border border-brand-gold/30'
+              }`}
+            >
               Como Funciona
             </span>
           </button>
@@ -67,15 +85,27 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
           {/* Tab 3: History & Audit */}
           <button
             onClick={() => onChangeTab('audit')}
-            className={`flex items-center space-x-2 py-2.5 px-3 sm:px-4 rounded-t-lg text-xs sm:text-sm font-mono font-medium transition-all relative ${
+            className={`flex items-center space-x-2 py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-mono transition-all duration-150 relative ${
               activeTab === 'audit'
-                ? 'bg-sand-surface text-brand-gold border-t-2 border-brand-gold shadow-sm'
-                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/40'
+                ? 'bg-gradient-to-b from-[#3E342B] to-[#2B231C] text-white font-bold border border-brand-gold/70 shadow-md shadow-black/50 ring-1 ring-brand-gold/40'
+                : 'text-sand-muted hover:text-brand-ivory hover:bg-sand-surface/60 border border-transparent font-medium'
             }`}
           >
-            <History className="w-4 h-4 flex-shrink-0" />
+            <History
+              className={`w-4 h-4 flex-shrink-0 ${
+                activeTab === 'audit'
+                  ? 'text-brand-gold drop-shadow-[0_0_8px_rgba(206,176,126,0.6)]'
+                  : 'text-sand-muted'
+              }`}
+            />
             <span>Histórico & Auditoria</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-sand-terminal border border-brand-bronze/40 text-brand-gold">
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-mono transition-colors ${
+                activeTab === 'audit'
+                  ? 'bg-brand-gold text-sand-terminal font-bold shadow-xs'
+                  : 'bg-sand-terminal border border-brand-bronze/40 text-brand-gold'
+              }`}
+            >
               {auditCount}
             </span>
           </button>
