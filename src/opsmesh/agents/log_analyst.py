@@ -59,9 +59,49 @@ class LogTraceAnalystAgent:
             logger.warning("Failed to parse log JSON: %s. Raw output: %s", exc, log_output[:100])
             summary = f"Logs retornados: {log_output[:200]}"
 
+        source_ref: str | None = None
+        code_snippet: str | None = None
+
+        # Inspect source code on GitHub main branch if target service is identified
+        target_file = None
+        if (
+            "checkout" in probable_service.lower()
+            or "cart" in probable_service.lower()
+            or "checkout" in directive.lower()
+        ):
+            target_file = "shopcore-api/app/routers/checkout.py"
+            source_ref = f"{target_file}:15"
+        elif (
+            "postgres" in directive.lower()
+            or "pool" in directive.lower()
+            or "db" in probable_service.lower()
+        ):
+            target_file = "shopcore-api/app/database.py"
+            source_ref = f"{target_file}:8"
+        elif anomalies:
+            target_file = "shopcore-api/app/main.py"
+            source_ref = f"{target_file}:1"
+
+        if target_file:
+            try:
+                code_snippet = await self.dispatcher.execute_tool(
+                    "inspect_github_source",
+                    {
+                        "repo": "henriquebotelhogomes/chaos-lab",
+                        "file_path": target_file,
+                        "start_line": 1,
+                        "end_line": 25,
+                        "ref": "main",
+                    },
+                )
+            except Exception as exc:
+                logger.warning("GitHub source inspection failed: %s", exc)
+
         return LogAnalysisResult(
             found_anomalies=anomalies[:5],
             probable_origin_service=probable_service,
             error_spike_percentage=spike_pct,
             summary=summary,
+            source_file_reference=source_ref,
+            inspected_code_snippet=code_snippet,
         )

@@ -28,6 +28,8 @@ from opsmesh.core.schemas import (
     ResumeIncidentRequest,
 )
 from opsmesh.core.state import IncidentState
+from opsmesh.core.tracing import extract_trace_context
+from opsmesh.storage.analytics import query_incident_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +56,9 @@ async def ingest_alert_webhook(
     incident_id = f"INC-{uuid.uuid4().hex[:8].upper()}"
     thread_id = f"thread-{incident_id}"
 
+    trace_ctx = extract_trace_context(dict(request.headers), payload.metadata)
+    trace_id = trace_ctx.get("trace_id", f"trace-{incident_id}")
+
     initial_state: IncidentState = {
         "incident_id": incident_id,
         "severity": payload.severity,
@@ -73,7 +78,7 @@ async def ingest_alert_webhook(
         "token_budget_limit": settings.FINOPS_MAX_TOKENS_PER_INCIDENT,
         "total_tokens_consumed": 250,
         "is_budget_exceeded": False,
-        "trace_id": f"trace-{incident_id}",
+        "trace_id": trace_id,
         "langsmith_run_id": None,
     }
 
@@ -347,3 +352,12 @@ async def get_post_mortem(
         )
 
     return report
+
+
+@router.get(
+    "/analytics/metrics",
+    summary="Consultar Métricas Históricas de Incidentes e MTTR (DuckDB + Parquet)",
+)
+async def get_analytics_metrics() -> dict[str, Any]:
+    """Execute SQL analytics queries over the serverless Parquet dataset using DuckDB."""
+    return query_incident_metrics()

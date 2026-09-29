@@ -42,6 +42,14 @@ class LogAnalysisResult(BaseModel):
     probable_origin_service: str
     error_spike_percentage: float
     summary: str
+    source_file_reference: str | None = Field(
+        default=None,
+        description="Coordenadas do arquivo e linha na branch main (ex: 'services/checkout.py:142').",
+    )
+    inspected_code_snippet: str | None = Field(
+        default=None,
+        description="Trecho de código recuperado da branch main via GitHub REST API.",
+    )
 
 
 # --- Database & Infra Analyst Schemas ---
@@ -67,7 +75,43 @@ class RunbookRetrievalResult(BaseModel):
     synthesis: str
 
 
-# --- Remediation Engineer Schemas ---
+# --- Remediation Engineer Schemas (Two-Tier Remediation) ---
+class RuntimeMitigation(BaseModel):
+    action_type: Literal[
+        "DATABASE_CONNECTION_SCALE",
+        "DATABASE_TERMINATE_BACKENDS",
+        "POD_ROLLOUT_RESTART",
+        "CONFIG_ROLLBACK",
+        "TRAFFIC_DRAIN",
+        "CIRCUIT_BREAKER_ACTIVATE",
+        "SCHEMA_HOTFIX",
+    ] = "DATABASE_TERMINATE_BACKENDS"
+    target_endpoint: str | None = Field(
+        default=None,
+        description="Rota operacional do Chaos Lab (ex: 'POST /operations/mitigate').",
+    )
+    proposed_commands: list[str] = Field(
+        default_factory=list, description="Comandos exatos a serem executados em runtime."
+    )
+    rollback_plan: str = Field(
+        default="", description="Procedimento exato para desfazer a ação caso o problema se agrave."
+    )
+
+
+class GitOpsPullRequest(BaseModel):
+    target_repo: str = Field(
+        default="henriquebotelhogomes/chaos-lab", description="Repositório alvo no GitHub."
+    )
+    target_branch: str = Field(default="main", description="Branch de destino da alteração.")
+    pr_branch_name: str = Field(description="Nova branch criada para o PR.")
+    pr_title: str = Field(description="Título formal do Pull Request.")
+    pr_body: str = Field(description="Corpo do PR com diagnóstico e justificativa.")
+    patch_diff: str = Field(description="Diff unificado (git patch) a ser aplicado.")
+    pr_url: str | None = Field(
+        default=None, description="URL do PR aberto no GitHub quando criado."
+    )
+
+
 class RemediationPlan(BaseModel):
     action_type: Literal[
         "DATABASE_CONNECTION_SCALE",
@@ -93,6 +137,14 @@ class RemediationPlan(BaseModel):
     )
     justification: str = Field(
         description="Racional técnico de por que esta ação resolve a causa raiz."
+    )
+    tier_1_runtime: RuntimeMitigation | None = Field(
+        default=None,
+        description="Nível 1: Mitigação operacional imediata em runtime (< 5s).",
+    )
+    tier_2_gitops: GitOpsPullRequest | None = Field(
+        default=None,
+        description="Nível 2: Correção definitiva no código-fonte via Pull Request.",
     )
 
 
@@ -196,6 +248,8 @@ __all__ = [
     "InfraAnalysisResult",
     "RunbookRecommendation",
     "RunbookRetrievalResult",
+    "RuntimeMitigation",
+    "GitOpsPullRequest",
     "RemediationPlan",
     "TimelineEvent",
     "PreventativeAction",

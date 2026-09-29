@@ -16,6 +16,7 @@ from opsmesh.gateway.mcp_client import StdioMCPClient
 from opsmesh.gateway.tools import (
     check_k8s_deployment_health,
     inspect_database_activity,
+    inspect_github_source,
     query_logs,
     truncate_tool_output,
 )
@@ -86,6 +87,38 @@ class ToolDispatcher:
                     }
                 },
                 "required": ["service_name"],
+            },
+        )
+
+        self.register_function(
+            inspect_github_source,
+            name="inspect_github_source",
+            description="Inspect remote source code on GitHub main branch via REST API without cloning.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "repo": {
+                        "type": "string",
+                        "description": "Target GitHub repository in 'owner/repo' format.",
+                    },
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path to the file inside the repository.",
+                    },
+                    "start_line": {
+                        "type": "integer",
+                        "description": "First line to inspect (1-indexed).",
+                    },
+                    "end_line": {
+                        "type": "integer",
+                        "description": "Last line to inspect (1-indexed).",
+                    },
+                    "ref": {
+                        "type": "string",
+                        "description": "Git branch or commit reference (default 'main').",
+                    },
+                },
+                "required": ["repo", "file_path"],
             },
         )
 

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     WEBHOOK_SECRET: str = "opsmesh-webhook-secret-key-change-in-prod"
 
     # --- Modelos de Linguagem ---
-    DEFAULT_LLM_PROVIDER: Literal["openai", "deepseek", "gemini"] = "deepseek"
+    DEFAULT_LLM_PROVIDER: Literal["openai", "deepseek", "gemini", "openrouter"] = "deepseek"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL_NAME: str = "gpt-4o-mini"
     DEEPSEEK_API_KEY: str = ""
@@ -28,6 +28,18 @@ class Settings(BaseSettings):
     DEEPSEEK_MODEL_NAME: str = "deepseek-v4.1-flash"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    OPENROUTER_MODEL_NAME: str = "openrouter/free"
+    JEV_MODEL_NAME: str = "typesafe/jev-latest"
+
+    # --- GitOps & Integração Remota (GitHub REST API) ---
+    GITHUB_TOKEN: str = ""
+    CHAOS_LAB_URL: str = "http://localhost:8001"
+    CHAOS_LAB_GITHUB_REPO: str = "henriquebotelhogomes/chaos-lab"
+
+    # --- Tracing & Observabilidade ---
+    DATADOG_TRACE_ENABLED: bool = False
 
     # --- CORS Security ---
     CORS_ORIGINS: str = "*"

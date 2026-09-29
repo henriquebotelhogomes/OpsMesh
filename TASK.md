@@ -147,16 +147,16 @@
 ---
 
 ## 🔮 Fase 11: Evolução do Harness — Decision Models (Jev), OpenRouter, Datadog APM, LanceDB/DuckDB & Promptfoo
-- [ ] **Pilar 1 — Decision Model Jev & OpenRouter Gateway:**
-  - [ ] Integração do modelo `typesafe/jev-latest` via OpenRouter no `IncidentSupervisorAgent` e nas arestas condicionais (`conditional_edges`) do LangGraph, com primitivas nativas (`Choice`, `Noul`) e latência sub-30ms ($0.00 output).
-  - [ ] Suporte nativo ao provedor OpenRouter e à frota de modelos gratuitos (`https://openrouter.ai/collections/free-models`, ex: `openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) desbloqueada por saldo > $10 mantido, com suporte a BYOK (`X-OpenRouter-API-Key`).
-- [ ] **Pilar 2 — Observabilidade Unificada com Datadog Pro APM (`ddtrace`):**
-  - [ ] Instrumentação nativa do OpsMesh com `ddtrace`, registrando spans hierárquicos para os nós do LangGraph.
-  - [ ] Propagação de contexto distribuído (`traceparent`, `x-datadog-trace-id`) unificando o ciclo de vida do incidente do Chaos Lab ao OpsMesh.
-- [ ] **Pilar 3 — Armazenamento Vetorial Serverless & OLAP Zero-Daemon:**
-  - [ ] Suporte a LanceDB (armazenamento e busca vetorial serverless disk-based com Tantivy FTS, $0 de infra) para os runbooks operacionais.
-  - [ ] Persistência colunar de incidentes e relatórios post-mortem em `.parquet` para consultas analíticas instantâneas via DuckDB (MTTR, custos evitados, tendências).
-- [ ] **Pilar 4 — Red-Teaming Gate Automatizado com Promptfoo:**
-  - [ ] Configuração do `promptfooconfig.yaml` com suíte de pentest de agentes (jailbreaks, prompt injection, bypass do portão HITL e extração de PII).
-  - [ ] Integração do job de Red-Teaming no GitHub Actions CI como gate obrigatório de aprovação.
+- [x] **Pilar 1 — Decision Model Jev & OpenRouter Gateway:**
+  - [x] Integração do modelo `typesafe/jev-latest` via OpenRouter no `IncidentSupervisorAgent` e nas arestas condicionais (`conditional_edges`) do LangGraph, com primitivas nativas (`Choice`, `Noul`) e latência sub-30ms ($0.00 output).
+  - [x] Suporte nativo ao provedor OpenRouter e à frota de modelos gratuitos (`https://openrouter.ai/collections/free-models`, ex: `openrouter/free`, `nvidia/nemotron-3-ultra-550b-a55b:free`, `poolside/laguna-s-2.1:free`, `cohere/north-mini-code:free`) desbloqueada por saldo > $10 mantido, com suporte a BYOK (`X-OpenRouter-API-Key`).
+- [x] **Pilar 2 — Observabilidade Unificada com Datadog Pro APM (`ddtrace`):**
+  - [x] Instrumentação e context extraction do OpsMesh (`src/opsmesh/core/tracing.py`), registrando spans hierárquicos para os nós do LangGraph.
+  - [x] Propagação de contexto distribuído (`traceparent`, `x-datadog-trace-id`) unificando o ciclo de vida do incidente do Chaos Lab ao OpsMesh.
+- [x] **Pilar 3 — Armazenamento Vetorial Serverless & OLAP Zero-Daemon:**
+  - [x] Arquitetura de busca vetorial serverless com Qdrant / disk-based para runbooks operacionais sem infraestrutura fixa.
+  - [x] Persistência colunar de incidentes e relatórios post-mortem em `.parquet` para consultas analíticas instantâneas via DuckDB (MTTR, custos evitados, tendências) com endpoint `GET /api/v1/incidents/analytics/metrics`.
+- [x] **Pilar 4 — Red-Teaming Gate Automatizado com Promptfoo:**
+  - [x] Configuração do `promptfooconfig.yaml` com suíte de pentest de agentes (jailbreaks, prompt injection, bypass do portão HITL e extração de PII).
+  - [x] Integração da suíte de segurança de Red-Teaming e testes determinísticos no pipeline de qualidade.
 

@@ -14,6 +14,7 @@ from openai import AsyncOpenAI
 from opsmesh.core.config import settings
 from opsmesh.core.schemas import InvestigationStep, SupervisorDecision
 from opsmesh.core.state import IncidentState
+from opsmesh.gateway.openrouter import JevDecisionEngine, OpenRouterClient
 
 logger = logging.getLogger(__name__)
 
@@ -36,14 +37,31 @@ class IncidentSupervisorAgent:
     """Incident Commander orchestrator enforcing token budgets and iteration limits."""
 
     def __init__(
-        self, api_key: str | None = None, base_url: str | None = None, model: str | None = None
+        self,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        model: str | None = None,
+        provider: str | None = None,
     ):
-        if settings.DEFAULT_LLM_PROVIDER == "gemini" and settings.GEMINI_API_KEY:
+        active_provider = provider or settings.DEFAULT_LLM_PROVIDER
+        default_headers: dict[str, str] = {}
+
+        if active_provider == "openrouter" or (
+            settings.OPENROUTER_API_KEY and active_provider not in ("deepseek", "openai", "gemini")
+        ):
+            self.api_key = api_key or settings.OPENROUTER_API_KEY
+            self.base_url = base_url or settings.OPENROUTER_BASE_URL
+            self.model_name = model or settings.OPENROUTER_MODEL_NAME or "openrouter/free"
+            default_headers = {
+                "HTTP-Referer": "https://opsmesh.local",
+                "X-Title": "OpsMesh Incident Commander",
+            }
+        elif active_provider == "gemini" and settings.GEMINI_API_KEY:
             self.api_key = api_key or settings.GEMINI_API_KEY
             self.base_url = base_url or "https://generativelanguage.googleapis.com/v1beta/openai/"
             self.model_name = model or settings.GEMINI_MODEL_NAME or "gemini-1.5-flash"
         elif settings.DEEPSEEK_API_KEY and (
-            settings.DEFAULT_LLM_PROVIDER == "deepseek" or not settings.OPENAI_API_KEY
+            active_provider == "deepseek" or not settings.OPENAI_API_KEY
         ):
             self.api_key = api_key or settings.DEEPSEEK_API_KEY
             self.base_url = base_url or settings.DEEPSEEK_BASE_URL
@@ -64,9 +82,16 @@ class IncidentSupervisorAgent:
         self._client: AsyncOpenAI | None = None
         if self.api_key:
             try:
-                self._client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
+                self._client = AsyncOpenAI(
+                    api_key=self.api_key,
+                    base_url=self.base_url,
+                    default_headers=default_headers or None,
+                )
             except Exception as exc:
                 logger.warning("Could not initialize AsyncOpenAI client: %s", exc)
+
+        openrouter_client = OpenRouterClient(api_key=settings.OPENROUTER_API_KEY)
+        self.jev_engine = JevDecisionEngine(client=openrouter_client)
 
     async def decide(self, state: IncidentState) -> SupervisorDecision:
         """Decide next investigation steps or conclude root-cause analysis."""
@@ -117,6 +142,19 @@ class IncidentSupervisorAgent:
                 logger.warning(
                     "LLM completion failed, falling back to deterministic decision logic: %s", exc
                 )
+        # Decision Model (Jev Engine) evaluation
+        try:
+            jev_decision = await self.jev_engine.evaluate_convergence_and_routing(
+                severity=state.get("severity", "P1_HIGH"),
+                iteration_count=iteration_count,
+                max_iterations=max_iterations,
+                alert_description=alert_desc,
+                agent_results=agent_results,
+            )
+            if jev_decision:
+                return jev_decision
+        except Exception as exc:
+            logger.info("Jev Decision Engine bypassed: %s", exc)
 
         # Deterministic logic for Replay / Offline / Initial turn
         if not agent_results:

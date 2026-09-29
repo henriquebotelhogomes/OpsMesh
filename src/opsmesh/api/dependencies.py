@@ -101,9 +101,15 @@ def extract_byok_keys(request: Request) -> dict[str, str]:
     keys = {}
     openai_key = request.headers.get("X-OpenAI-API-Key")
     deepseek_key = request.headers.get("X-DeepSeek-API-Key")
+    openrouter_key = request.headers.get("X-OpenRouter-API-Key")
+    gemini_key = request.headers.get("X-Gemini-API-Key")
 
     if openai_key:
         keys["openai"] = openai_key
     if deepseek_key:
         keys["deepseek"] = deepseek_key
+    if openrouter_key:
+        keys["openrouter"] = openrouter_key
+    if gemini_key:
+        keys["gemini"] = gemini_key
     return keys
