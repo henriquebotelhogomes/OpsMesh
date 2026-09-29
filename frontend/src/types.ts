@@ -7,6 +7,22 @@ export type IncidentStatus =
   | 'RESOLVED'
   | 'FAILED';
 
+export interface RuntimeMitigation {
+  action_type: string;
+  target_endpoint?: string | null;
+  proposed_commands: string[];
+  rollback_plan: string;
+}
+
+export interface GitOpsPullRequest {
+  target_repo: string;
+  target_branch: string;
+  pr_branch_name: string;
+  pr_title: string;
+  pr_body: string;
+  patch_diff: string;
+}
+
 export interface RemediationPlan {
   action_type: string;
   is_critical_action: boolean;
@@ -15,7 +31,10 @@ export interface RemediationPlan {
   patch_diff?: string | null;
   rollback_plan: string;
   justification: string;
+  tier_1_runtime?: RuntimeMitigation | null;
+  tier_2_gitops?: GitOpsPullRequest | null;
 }
+
 
 export interface TimelineEvent {
   timestamp: string;

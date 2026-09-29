@@ -29,20 +29,21 @@ class RemediationEngineerAgent:
 
         # Scenario 1: Database Connection Pool Exhaustion
         if "postgres" in summary or "pool" in summary or "conn" in summary or "conn" in alert_text:
-            patch = """--- a/helm/order-service/values.yaml
-+++ b/helm/order-service/values.yaml
-@@ -14,3 +14,3 @@ database:
--  pool_max_size: 20
--  pool_timeout_seconds: 5.0
-+  pool_max_size: 50
-+  pool_timeout_seconds: 15.0"""
+            patch = """--- a/src/core/config.py
++++ b/src/core/config.py
+@@ -22,3 +22,3 @@
+-    db_pool_size: int = 10
+-    db_max_overflow: int = 5
++    db_pool_size: int = 30
++    db_max_overflow: int = 10"""
             return RemediationPlan(
                 action_type="DATABASE_TERMINATE_BACKENDS",
                 is_critical_action=True,
                 risk_level="HIGH",
                 proposed_commands=[
-                    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction' AND now() - query_start > interval '120 seconds' AND usename != 'postgres';",
-                    "kubectl rollout restart deployment order-service -n production",
+                    "POST /operations/mitigate action_type=DATABASE_CONNECTION_SCALE",
+                    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction';",
+                    "kubectl rollout restart deployment chaos-lab -n production",
                 ],
                 patch_diff=patch,
                 rollback_plan="Caso a terminação das conexões afete transações ativas, reverter a escala do pool e reiniciar PgBouncer: kubectl rollout restart deployment pgbouncer.",
@@ -81,46 +82,44 @@ class RemediationEngineerAgent:
             or "exitcode 137" in summary
             or "137" in alert_text
         ):
-            patch = """--- a/k8s/recommendation-deployment.yaml
-+++ b/k8s/recommendation-deployment.yaml
-@@ -21,3 +21,3 @@ spec:
--      - image: registry.internal/ml/recommendation:v1.5.0-canary
-+      - image: registry.internal/ml/recommendation:v1.4.2-stable
-         resources:
-           limits:
--            memory: "4Gi"
-+            memory: "8Gi" """
+            patch = """--- a/src/chaos/state.py
++++ b/src/chaos/state.py
+@@ -38,2 +38,4 @@
+-    def inject_memory_leak(self, megabytes=25):
+-        self.leaked_chunks.append(bytearray(megabytes * 1024 * 1024))
++    def inject_memory_leak(self, megabytes=25):
++        # Bounded buffer com coleta forçada
++        import gc; gc.collect()"""
             return RemediationPlan(
                 action_type="CONFIG_ROLLBACK",
                 is_critical_action=True,
                 risk_level="CRITICAL",
                 proposed_commands=[
-                    "kubectl set image deployment/recommendation-ml worker=registry.internal/ml/recommendation:v1.4.2 -n production",
-                    "kubectl rollout status deployment/recommendation-ml -n production --timeout=180s",
+                    "POST /operations/mitigate action_type=FLUSH_GC",
+                    "kubectl rollout restart deployment chaos-lab -n production",
                 ],
                 patch_diff=patch,
-                rollback_plan="Se a versão v1.4.2 apresentar incompatibilidade de payload, comutar o tráfego para a réplica de contingência em modo shadow.",
-                justification="A versão canary v1.5.0 possui vazamento contínuo de tensores em memória, causando OOMKilled repetido (exit 137) nos pods. O rollback restaura a estabilidade.",
+                rollback_plan="Reverter para pod shadow de contingência caso ocorra divergência.",
+                justification="Vazamento contínuo de tensores em memória causando CrashLoopBackOff repetido. O flush e GC forçado eliminam o vazamento.",
                 tier_1_runtime=RuntimeMitigation(
-                    action_type="CONFIG_ROLLBACK",
+                    action_type="FLUSH_GC",
                     target_endpoint="POST /operations/mitigate",
                     proposed_commands=[
-                        "POST /operations/mitigate (target: memory-leak)",
-                        "kubectl rollout restart deployment recommendation-ml -n production",
+                        "POST /operations/mitigate action_type=FLUSH_GC",
                     ],
-                    rollback_plan="kubectl rollout undo deployment recommendation-ml -n production",
+                    rollback_plan="Restaurar estado anterior",
                 ),
                 tier_2_gitops=GitOpsPullRequest(
                     target_repo="henriquebotelhogomes/chaos-lab",
                     target_branch="main",
-                    pr_branch_name="fix/opsmesh-ml-canary-rollback",
-                    pr_title="fix(ml): rollback canary model to v1.4.2-stable",
+                    pr_branch_name="fix/opsmesh-gc-memory-cleanup",
+                    pr_title="fix(memory): force garbage collection and limit chunk buffer allocations",
                     pr_body=(
                         "## Diagnóstico da Causa Raiz\n"
-                        "Vazamento de tensores de memória causando OOMKilled repetido.\n\n"
+                        "Vazamento contínuo de memória em tensores alocados sem coleta.\n\n"
                         "## Mudanças Propostas\n"
-                        "- Reversão para imagem estável v1.4.2.\n"
-                        "- Ajuste de limite de memória para 8Gi.\n\n"
+                        "- Adição de descarte forçado via `gc.collect()` em `src/chaos/state.py`.\n"
+                        "- Limpeza de buffers cumulativos.\n\n"
                         "*Gerado automaticamente pelo OpsMesh Incident Commander.*"
                     ),
                     patch_diff=patch,
@@ -129,41 +128,42 @@ class RemediationEngineerAgent:
 
         # Scenario 3: Checkout / Upstream Dependency Failure
         elif "checkout" in summary or "504" in summary or "timeout" in summary:
-            patch = """--- a/config/checkout-service.json
-+++ b/config/checkout-service.json
-@@ -8,2 +8,2 @@
--  "inventory_fallback_enabled": false
-+  "inventory_fallback_enabled": true"""
+            patch = """--- a/src/core/config.py
++++ b/src/core/config.py
+@@ -24,2 +24,3 @@
+-    db_timeout_seconds: float = 3.0
++    db_timeout_seconds: float = 5.0
++    inventory_circuit_breaker: bool = True"""
             return RemediationPlan(
                 action_type="CIRCUIT_BREAKER_ACTIVATE",
                 is_critical_action=True,
                 risk_level="MEDIUM",
                 proposed_commands=[
-                    'curl -X POST http://consul.internal/v1/kv/config/checkout/inventory_circuit_breaker -d \'{"state": "OPEN", "fallback": "ASYNC_QUEUE"}\'',
-                    "kubectl scale deployment inventory-service --replicas=6 -n production",
+                    "POST /operations/mitigate action_type=CIRCUIT_BREAKER_ACTIVATE",
+                    "kubectl scale deployment chaos-lab --replicas=3 -n production",
                 ],
                 patch_diff=patch,
-                rollback_plan="Fechar o disjuntor de circuito assim que a latência do microsserviço de inventário normalizar abaixo de 200ms.",
-                justification="O microsserviço de inventário está em cascata de timeouts. Abrir o circuit breaker com fallback assíncrono evita perda de vendas no checkout.",
+                rollback_plan="Fechar o disjuntor de circuito assim que a latência normalizar abaixo de 200ms.",
+                justification="Microsserviço de inventário em cascata de timeouts. Ativar circuit breaker evita perda de vendas no checkout.",
                 tier_1_runtime=RuntimeMitigation(
                     action_type="CIRCUIT_BREAKER_ACTIVATE",
                     target_endpoint="POST /operations/mitigate",
                     proposed_commands=[
-                        "POST /operations/mitigate (target: timeout)",
-                        'curl -X POST http://consul.internal/v1/kv/config/checkout/circuit_breaker -d \'{"state": "OPEN"}\'',
+                        "POST /operations/mitigate action_type=CIRCUIT_BREAKER_ACTIVATE",
                     ],
-                    rollback_plan='curl -X POST http://consul.internal/v1/kv/config/checkout/circuit_breaker -d \'{"state": "CLOSED"}\'',
+                    rollback_plan="Desativar circuit breaker",
                 ),
                 tier_2_gitops=GitOpsPullRequest(
                     target_repo="henriquebotelhogomes/chaos-lab",
                     target_branch="main",
-                    pr_branch_name="fix/opsmesh-checkout-circuit-breaker",
-                    pr_title="fix(checkout): enable inventory circuit breaker fallback",
+                    pr_branch_name="fix/opsmesh-inventory-timeout",
+                    pr_title="fix(inventory): add circuit breaker and increase timeout tolerance",
                     pr_body=(
                         "## Diagnóstico da Causa Raiz\n"
-                        "Cascata de timeouts HTTP 504 no checkout.\n\n"
+                        "Cascata de timeouts 504 no checkout.\n\n"
                         "## Mudanças Propostas\n"
-                        "- Ativação de fallback assíncrono para o inventário.\n\n"
+                        "- Aumento de timeout para 5.0s em `src/core/config.py`.\n"
+                        "- Ativação de flag de fallback assíncrono.\n\n"
                         "*Gerado automaticamente pelo OpsMesh Incident Commander.*"
                     ),
                     patch_diff=patch,

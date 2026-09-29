@@ -7,8 +7,11 @@ import {
   Check,
   RotateCcw,
   Terminal,
-  FileCode2,
   UserCheck,
+  Zap,
+  GitPullRequest,
+  GitBranch,
+  ExternalLink,
 } from 'lucide-react';
 import { RemediationPlan } from '../types';
 
@@ -110,27 +113,30 @@ export const HITLHeroCard: React.FC<HITLHeroCardProps> = ({
         </p>
       </div>
 
-      {/* 2. Comandos de Mitigação Propostos */}
-      <div className="mb-5">
-        <div className="flex items-center justify-between mb-2">
+      {/* 2. NÍVEL 1: Mitigação Imediata em Runtime */}
+      <div className="mb-5 bg-sand-terminal/60 rounded-lg p-4 border border-brand-amber/30">
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-brand-amber/20">
           <div className="flex items-center space-x-2">
-            <Terminal className="w-4 h-4 text-brand-bronzeLight" />
-            <h4 className="text-xs font-bold text-brand-ivory uppercase tracking-wider font-mono">
-              Comandos de Mitigação Cirúrgica Propostos
-            </h4>
+            <Zap className="w-4 h-4 text-brand-amber animate-pulse" />
+            <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-brand-amber/20 text-brand-amber border border-brand-amber/40 uppercase tracking-wider font-mono">
+              Nível 1: Mitigação Runtime (&lt; 5s)
+            </span>
           </div>
-          <span className="text-[10px] text-sand-muted">
-            Tipo de Ação: <b className="text-brand-gold">{remediationPlan.action_type}</b>
+          <span className="text-[11px] text-sand-muted font-mono">
+            Ação: <b className="text-brand-gold">{remediationPlan.tier_1_runtime?.action_type || remediationPlan.action_type}</b>
           </span>
         </div>
 
         <div className="space-y-2">
-          {remediationPlan.proposed_commands.map((cmd, idx) => (
+          {(remediationPlan.tier_1_runtime?.proposed_commands || remediationPlan.proposed_commands).map((cmd, idx) => (
             <div
               key={idx}
               className="flex items-center justify-between bg-sand-terminal rounded-lg p-3 border border-brand-bronze/30 font-mono text-xs text-brand-ivory"
             >
-              <code className="truncate mr-3 text-brand-gold/95">{cmd}</code>
+              <div className="flex items-center space-x-2 truncate mr-3">
+                <Terminal className="w-3.5 h-3.5 text-brand-amber flex-shrink-0" />
+                <code className="truncate text-brand-gold/95">{cmd}</code>
+              </div>
               <button
                 onClick={() => handleCopyCommand(cmd, idx)}
                 className="p-1.5 rounded hover:bg-sand-surface text-sand-muted hover:text-brand-gold transition-colors flex-shrink-0"
@@ -147,17 +153,48 @@ export const HITLHeroCard: React.FC<HITLHeroCardProps> = ({
         </div>
       </div>
 
-      {/* 3. Patch Diff (se houver) */}
-      {remediationPlan.patch_diff && (
-        <div className="mb-5">
-          <div className="flex items-center space-x-2 mb-2">
-            <FileCode2 className="w-4 h-4 text-brand-bronzeLight" />
-            <h4 className="text-xs font-bold text-brand-ivory uppercase tracking-wider font-mono">
-              Diff de Configuração Proposto (Unified Patch)
-            </h4>
+      {/* 3. NÍVEL 2: GitOps Pull Request Definitivo (GitHub) */}
+      {(remediationPlan.patch_diff || remediationPlan.tier_2_gitops?.patch_diff) && (
+        <div className="mb-5 bg-sand-terminal/60 rounded-lg p-4 border border-brand-emerald/40 shadow-glow-emerald">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-brand-emerald/20">
+            <div className="flex items-center space-x-2">
+              <GitPullRequest className="w-4 h-4 text-brand-emerald" />
+              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40 uppercase tracking-wider font-mono">
+                Nível 2: GitOps Pull Request (Definitivo)
+              </span>
+            </div>
+
+            {/* GitHub Repo & Branch Badges */}
+            <div className="flex items-center space-x-2 flex-wrap text-[11px] font-mono">
+              <span className="text-sand-muted flex items-center space-x-1 bg-sand-surface px-2 py-0.5 rounded border border-brand-bronze/30">
+                <GitBranch className="w-3 h-3 text-brand-emerald" />
+                <b className="text-brand-ivory">
+                  {remediationPlan.tier_2_gitops?.pr_branch_name || 'fix/opsmesh-conn-leak-8f3a'}
+                </b>
+              </span>
+              <a
+                href={`https://github.com/${remediationPlan.tier_2_gitops?.target_repo || 'henriquebotelhogomes/chaos-lab'}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-brand-gold hover:underline flex items-center space-x-1 bg-sand-surface px-2 py-0.5 rounded border border-brand-bronze/30"
+              >
+                <span>{remediationPlan.tier_2_gitops?.target_repo || 'henriquebotelhogomes/chaos-lab'}</span>
+                <ExternalLink className="w-3 h-3 ml-0.5" />
+              </a>
+            </div>
           </div>
+
+          {/* PR Title Banner */}
+          <div className="mb-2 text-xs font-mono text-sand-text">
+            <span className="text-sand-muted">Título do PR: </span>
+            <b className="text-brand-ivory">
+              {remediationPlan.tier_2_gitops?.pr_title || 'fix(db): expand connection pool capacity from 10 to 30'}
+            </b>
+          </div>
+
+          {/* Unified Diff */}
           <div className="bg-sand-terminal rounded-lg border border-brand-bronze/30 overflow-x-auto py-2">
-            {renderDiffLines(remediationPlan.patch_diff)}
+            {renderDiffLines(remediationPlan.tier_2_gitops?.patch_diff || remediationPlan.patch_diff || '')}
           </div>
         </div>
       )}
@@ -170,6 +207,7 @@ export const HITLHeroCard: React.FC<HITLHeroCardProps> = ({
           <span className="text-sand-muted leading-relaxed">{remediationPlan.rollback_plan}</span>
         </div>
       </div>
+
 
       {/* 5. Ações Humanas & Assinatura */}
       <div className="pt-4 border-t border-brand-bronze/30 flex flex-col sm:flex-row items-center justify-between gap-4">

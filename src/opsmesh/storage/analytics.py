@@ -11,7 +11,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-import duckdb
+try:
+    import duckdb
+except ImportError:
+    duckdb = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +45,10 @@ def record_incident_analytics(
     timestamp = str(
         incident_data.get("created_at") or incident_data.get("timestamp", "2026-09-10T00:00:00Z")
     )
+
+    if duckdb is None:
+        logger.warning("duckdb is not installed; skipping columnar analytics recording.")
+        return
 
     con = duckdb.connect(database=":memory:")
     try:
@@ -105,8 +112,7 @@ def query_incident_metrics(
     """Execute SQL analytics queries over the Parquet store using DuckDB."""
     target_path = Path(parquet_path)
 
-    # If no data exists yet, return nominal baseline metrics
-    if not target_path.exists() or os.path.getsize(target_path) == 0:
+    if duckdb is None or not target_path.exists() or os.path.getsize(target_path) == 0:
         return {
             "total_incidents": 0,
             "avg_mttr_minutes": 0.0,
