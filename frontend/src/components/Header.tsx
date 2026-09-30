@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, BookOpen, Activity, Cpu, ChevronDown } from 'lucide-react';
+import { Shield, BookOpen, Activity, Cpu, ChevronDown, Flame, ExternalLink } from 'lucide-react';
 import { OPENCODE_GO_MODELS } from '../models';
 
 interface HeaderProps {
@@ -43,8 +43,17 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Quick Action Links for Mobile (Auditoria & Docs) */}
+          {/* Quick Action Links for Mobile (Chaos Lab, Auditoria & Docs) */}
           <div className="flex items-center space-x-1.5 md:hidden flex-shrink-0 ml-2">
+            <a
+              href="https://chaos-lab-197215016090.us-central1.run.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded bg-brand-crimson/20 hover:bg-brand-crimson/30 text-brand-crimson border border-brand-crimson/40 active:scale-95 transition-transform flex items-center"
+              title="Abrir Simulador Chaos Lab em nova aba"
+            >
+              <Flame className="w-3.5 h-3.5" />
+            </a>
             {onScrollToHistory && (
               <button
                 onClick={onScrollToHistory}
@@ -112,6 +121,19 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Auditoria ({historyCount})</span>
             </button>
           )}
+
+          {/* Chaos Lab Live System Link (Desktop) */}
+          <a
+            href="https://chaos-lab-197215016090.us-central1.run.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-brand-crimson/15 to-brand-amber/15 hover:from-brand-crimson/30 hover:to-brand-amber/30 text-brand-ivory border border-brand-crimson/40 hover:border-brand-crimson/70 transition-all text-xs font-mono font-medium shadow-sm group"
+            title="Abrir microsserviço Chaos Lab em nova aba"
+          >
+            <Flame className="w-3.5 h-3.5 text-brand-crimson group-hover:scale-110 transition-transform" />
+            <span>Chaos Lab</span>
+            <ExternalLink className="w-3 h-3 text-sand-muted group-hover:text-brand-ivory transition-colors" />
+          </a>
 
           {/* Scalar Documentation Link (Desktop) */}
           <a

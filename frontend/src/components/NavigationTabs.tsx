@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, BookOpen, History, Flame } from 'lucide-react';
+import { Activity, BookOpen, History, Flame, ExternalLink } from 'lucide-react';
 
 export type AppTab = 'console' | 'guide' | 'audit';
 
@@ -118,10 +118,17 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
             <span>Cloud Run: <strong>Online</strong></span>
           </span>
           <span className="text-brand-bronze/40">|</span>
-          <span className="inline-flex items-center space-x-1.5">
-            <Flame className="w-3.5 h-3.5 text-brand-crimson" />
-            <span>Chaos Lab: <strong>Integrado</strong></span>
-          </span>
+          <a
+            href="https://chaos-lab-197215016090.us-central1.run.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center space-x-1.5 hover:text-brand-ivory transition-colors group cursor-pointer"
+            title="Abrir Simulador de Falhas Chaos Lab em nova aba"
+          >
+            <Flame className="w-3.5 h-3.5 text-brand-crimson group-hover:scale-110 transition-transform" />
+            <span>Chaos Lab: <strong className="text-brand-gold group-hover:underline">Integrado</strong></span>
+            <ExternalLink className="w-3 h-3 text-sand-muted group-hover:text-brand-ivory" />
+          </a>
         </div>
       </div>
     </div>
